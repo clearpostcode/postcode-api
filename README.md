@@ -1,4 +1,4 @@
-# Clear Postcode: UK postcode API and AI-assistant connector
+# ClearPostcode: UK postcode API and AI-assistant connector
 
 Every UK postcode, answered instantly: look up, validate and autocomplete, with its council, ward, constituency,
 coordinates, police force, NHS area and deprivation decile. Find the nearest postcodes, reverse geocode a point, measure

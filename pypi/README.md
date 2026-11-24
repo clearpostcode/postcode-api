@@ -1,4 +1,4 @@
-# Clear Postcode: UK postcode API for Python
+# ClearPostcode: UK postcode API for Python
 
 Look up, validate and autocomplete any UK postcode, and get its council, ward, constituency, coordinates, police force
 and more, from the ONS Postcode Directory and OS Open Names. Nearest postcodes, reverse geocoding, distances and

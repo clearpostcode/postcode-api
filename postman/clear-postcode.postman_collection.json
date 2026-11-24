@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Clear Postcode API",
+    "name": "ClearPostcode API",
     "description": "UK postcode lookup, validation, autocomplete, reverse geocoding, distances and area data, on the ONS Postcode Directory and OS Open Names. v1 only ever grows: new endpoints and new fields, never a removed or renamed one. Anything breaking would be v2, announced at least 12 months ahead with Deprecation and Sunset headers.\n\nFields: postcode; status; outcode, incode, sector, district, area; introduced, terminated; replaced_by; user_type; location; country, region, county, local_authority, ward, parish; county_electoral_division; constituency; police_force, nhs_region, icb, sub_icb; national_park, built_up_area, travel_to_work_area; lsoa, msoa, output_area; rural_urban; area_classification; deprivation.\n\nSet the apiKey collection variable to your key (free at https://clearpostcode.co.uk/developers). Most endpoints also work with it empty. Docs: https://clearpostcode.co.uk/developers/docs",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "version": "1.0.0"

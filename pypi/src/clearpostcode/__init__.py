@@ -1,4 +1,4 @@
-"""Clear Postcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
+"""ClearPostcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
 area data. Standard library only. Docs: https://clearpostcode.co.uk/developers/docs"""
 
 from __future__ import annotations

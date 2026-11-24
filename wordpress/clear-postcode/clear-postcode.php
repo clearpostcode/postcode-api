@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name:       Clear Postcode
+ * Plugin Name:       ClearPostcode
  * Plugin URI:        https://clearpostcode.co.uk/integrations
  * Description:       Check UK postcodes at WooCommerce checkout (billing and shipping) and add a postcode checker to any page with [clear_postcode_lookup].
  * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            Clear Postcode
+ * Author:            ClearPostcode
  * Author URI:        https://clearpostcode.co.uk
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -295,7 +295,7 @@ function clear_postcode_ajax_check() {
 add_action( 'wp_ajax_clear_postcode_check', 'clear_postcode_ajax_check' );
 add_action( 'wp_ajax_nopriv_clear_postcode_check', 'clear_postcode_ajax_check' );
 
-/** Settings → Clear Postcode: the publishable key and two switches. */
+/** Settings → ClearPostcode: the publishable key and two switches. */
 add_action(
 	'admin_init',
 	function () {
@@ -343,7 +343,7 @@ add_action(
 add_action(
 	'admin_menu',
 	function () {
-		add_options_page( 'Clear Postcode', 'Clear Postcode', 'manage_options', 'clear-postcode', 'clear_postcode_settings_page' );
+		add_options_page( 'ClearPostcode', 'ClearPostcode', 'manage_options', 'clear-postcode', 'clear_postcode_settings_page' );
 	}
 );
 function clear_postcode_settings_page() {
@@ -352,7 +352,7 @@ function clear_postcode_settings_page() {
 	}
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Clear Postcode', 'clear-postcode' ); ?></h1>
+		<h1><?php esc_html_e( 'ClearPostcode', 'clear-postcode' ); ?></h1>
 		<p>
 			<?php esc_html_e( 'Get a free publishable key (10,000 lookups a month, no card) at', 'clear-postcode' ); ?>
 			<a href="<?php echo esc_url( 'https://clearpostcode.co.uk/developers#key' ); ?>" target="_blank" rel="noopener">clearpostcode.co.uk/developers</a>.

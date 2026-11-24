@@ -1,4 +1,4 @@
-=== Clear Postcode ===
+=== ClearPostcode ===
 Contributors: clearpostcode
 Tags: postcode, uk postcode, woocommerce, checkout, address validation
 Requires at least: 6.0
@@ -12,14 +12,14 @@ Check UK postcodes at WooCommerce checkout and add a postcode checker to any pag
 
 == Description ==
 
-Stop undeliverable orders and typo'd addresses before they happen. Clear Postcode checks the billing and shipping postcodes on your WooCommerce checkout against live UK postcode data, and gives you a `[clear_postcode_lookup]` shortcode that turns any page into a postcode checker.
+Stop undeliverable orders and typo'd addresses before they happen. ClearPostcode checks the billing and shipping postcodes on your WooCommerce checkout against live UK postcode data, and gives you a `[clear_postcode_lookup]` shortcode that turns any page into a postcode checker.
 
 * **WooCommerce checkout check:** billing and shipping postcodes are validated when the customer places the order, on both the classic checkout and the Checkout block. A bad postcode gets a clear message. If the service can't be reached, the order goes through: your checkout never stalls.
 * **Postcode checker:** `[clear_postcode_lookup]` shows a box where visitors type a postcode and see its council, ward, constituency, region and country.
 * **Fast:** answers are cached for 12 hours, so repeat postcodes cost nothing.
 * **Free to start:** 10,000 lookups a month, no card. A publishable key (`cp_pub_...`) is optional; without one the keyless allowance applies.
 
-Settings are under Settings, Clear Postcode. Get your free key at https://clearpostcode.co.uk/developers.
+Settings are under Settings, ClearPostcode. Get your free key at https://clearpostcode.co.uk/developers.
 
 Shortcode options:
 
@@ -28,11 +28,11 @@ Shortcode options:
 
 == External services ==
 
-This plugin sends postcodes from your WordPress server to the Clear Postcode API (https://api.clearpostcode.co.uk) to check them and look up the area they are in.
+This plugin sends postcodes from your WordPress server to the ClearPostcode API (https://api.clearpostcode.co.uk) to check them and look up the area they are in.
 
 * **What is sent:** the postcode being checked (a customer's billing or shipping postcode at checkout, or the postcode a visitor types into the checker) and, if you have added one, your publishable key. No names, street addresses or other order details are sent.
 * **When:** each time a checkout is placed with a UK postcode, and each time a visitor uses the checker. Answers are cached on your site for 12 hours.
-* **Service provider:** Clear Postcode (https://clearpostcode.co.uk).
+* **Service provider:** ClearPostcode (https://clearpostcode.co.uk).
 * Terms of use: https://clearpostcode.co.uk/terms
 * Privacy policy: https://clearpostcode.co.uk/privacy
 

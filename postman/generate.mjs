@@ -49,7 +49,7 @@ for (const [path, ops] of Object.entries(spec.paths)) {
 
 const collection = {
   info: {
-    name: "Clear Postcode API",
+    name: "ClearPostcode API",
     description: `${spec.info.description ?? ""}\n\nSet the apiKey collection variable to your key (free at https://clearpostcode.co.uk/developers). Most endpoints also work with it empty. Docs: https://clearpostcode.co.uk/developers/docs`,
     schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     version: spec.info.version,

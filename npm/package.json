@@ -36,7 +36,7 @@
   ],
   "homepage": "https://clearpostcode.co.uk/developers",
   "license": "MIT",
-  "author": "Clear Postcode <hello@clearpostcode.co.uk>",
+  "author": "ClearPostcode <hello@clearpostcode.co.uk>",
   "engines": {
     "node": ">=18"
   },

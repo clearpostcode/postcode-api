@@ -5,7 +5,7 @@ description = "UK postcode API client: postcode lookup, validation, autocomplete
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
-authors = [{ name = "Clear Postcode", email = "hello@clearpostcode.co.uk" }]
+authors = [{ name = "ClearPostcode", email = "hello@clearpostcode.co.uk" }]
 keywords = ["postcode", "uk postcode", "postcode lookup", "postcode api", "postcode validation", "postcode autocomplete", "reverse geocode", "geocoding", "council", "ward", "constituency"]
 classifiers = [
   "Programming Language :: Python :: 3",

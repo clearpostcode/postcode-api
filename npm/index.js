@@ -1,4 +1,4 @@
-// Clear Postcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
+// ClearPostcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
 // area data. No dependencies. Docs: https://clearpostcode.co.uk/developers/docs
 export const BASE = "https://api.clearpostcode.co.uk/v1";
 
