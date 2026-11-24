@@ -1,0 +1,52 @@
+{
+  "name": "clearpostcode",
+  "version": "1.0.0",
+  "description": "UK postcode API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. No dependencies.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test.mjs",
+    "smoke": "node smoke.mjs"
+  },
+  "keywords": [
+    "postcode",
+    "uk postcode",
+    "postcode lookup",
+    "postcode api",
+    "postcode validation",
+    "postcode autocomplete",
+    "reverse geocode",
+    "geocoding",
+    "council",
+    "ward",
+    "constituency",
+    "uk"
+  ],
+  "homepage": "https://clearpostcode.co.uk/developers",
+  "license": "MIT",
+  "author": "Clear Postcode <hello@clearpostcode.co.uk>",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clearpostcode/postcode-api.git",
+    "directory": "npm"
+  },
+  "bugs": {
+    "url": "https://clearpostcode.co.uk/contact",
+    "email": "hello@clearpostcode.co.uk"
+  }
+}

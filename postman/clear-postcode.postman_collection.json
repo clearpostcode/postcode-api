@@ -1,0 +1,677 @@
+{
+  "info": {
+    "name": "Clear Postcode API",
+    "description": "UK postcode lookup, validation, autocomplete, reverse geocoding, distances and area data, on the ONS Postcode Directory and OS Open Names. v1 only ever grows: new endpoints and new fields, never a removed or renamed one. Anything breaking would be v2, announced at least 12 months ahead with Deprecation and Sunset headers.\n\nFields: postcode; status; outcode, incode, sector, district, area; introduced, terminated; replaced_by; user_type; location; country, region, county, local_authority, ward, parish; county_electoral_division; constituency; police_force, nhs_region, icb, sub_icb; national_park, built_up_area, travel_to_work_area; lsoa, msoa, output_area; rural_urban; area_classification; deprivation.\n\nSet the apiKey collection variable to your key (free at https://clearpostcode.co.uk/developers). Most endpoints also work with it empty. Docs: https://clearpostcode.co.uk/developers/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.clearpostcode.co.uk/v1"
+    },
+    {
+      "key": "apiKey",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Postcodes",
+      "item": [
+        {
+          "name": "Look up a postcode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/postcodes/SW1A%201AA?fields=location%2Clocal_authority%2Cward",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "postcodes",
+                "SW1A%201AA"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "location%2Clocal_authority%2Cward",
+                  "description": "Comma-separated top-level fields to return (postcode and status always come back).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Everything about one postcode: status (live or terminated), coordinates with positional quality, and every area it sits in (country, region, county, council, ward, parish, constituency, police force, NHS board, census areas), plus rural-urban class and deprivation decile. A terminated postcode answers 200 with status \"terminated\", the month it ended and the nearest live postcode in replaced_by.\n\nBilling: 1 lookup when found; not found is free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when found; not found is free"
+          }
+        },
+        {
+          "name": "Validate a postcode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/postcodes/SW1A%201AA/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "postcodes",
+                "SW1A%201AA",
+                "validate"
+              ],
+              "query": []
+            },
+            "description": "Three answers in one: is the format valid, is it in the current edition (known), and is it live. Northern Ireland (BT) postcodes are checked by format only and come back with coverage \"not_covered\". New-build postcodes can take up to a quarter to reach the open data, so treat known: false as \"check again\", never as \"wrong\".\n\nBilling: 1 lookup when known; otherwise free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when known; otherwise free"
+          }
+        },
+        {
+          "name": "Postcodes near a postcode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/postcodes/SW1A%201AA/nearest?radius=500&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "postcodes",
+                "SW1A%201AA",
+                "nearest"
+              ],
+              "query": [
+                {
+                  "key": "radius",
+                  "value": "500",
+                  "description": "Search radius in metres (up to 2,000; default 500).",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many results (1 to 50, default 10).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Live postcodes closest to this one, nearest first, with the distance in metres.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
+          }
+        },
+        {
+          "name": "Postcodes near a point (reverse geocode)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/postcodes?lat=51.501&lon=-0.1416&radius=500&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "postcodes"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "51.501",
+                  "description": "Latitude (WGS84).",
+                  "disabled": false
+                },
+                {
+                  "key": "lon",
+                  "value": "-0.1416",
+                  "description": "Longitude (WGS84).",
+                  "disabled": false
+                },
+                {
+                  "key": "radius",
+                  "value": "500",
+                  "description": "Metres (up to 2,000; default 500).",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many results (1 to 50, default 10).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Live postcodes nearest a latitude and longitude, nearest first.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when anything is found"
+          }
+        },
+        {
+          "name": "Bulk lookup (up to 100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/postcodes?fields=location%2Clocal_authority%2Cward",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "postcodes"
+              ],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "location%2Clocal_authority%2Cward",
+                  "description": "Comma-separated top-level fields to return (postcode and status always come back).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Look up to 100 postcodes in one call. Results come back in the order sent, each with the query, the record or null, and an error code when it wasn't found.\n\nBilling: 1 lookup per postcode found. Secret (server) keys only.\n\nBilling: 1 lookup per postcode found",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"postcodes\": [\n    \"SW1A 1AA\",\n    \"M1 1AE\",\n    \"EH1 1YZ\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Bulk reverse geocode (up to 20)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reverse",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reverse"
+              ],
+              "query": []
+            },
+            "description": "Nearest postcodes for up to 20 points in one call.\n\nBilling: 1 lookup per point with a result. Secret (server) keys only.\n\nBilling: 1 lookup per point with a result",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"points\": [\n    {\n      \"lat\": 51.5014,\n      \"lon\": -0.1419,\n      \"limit\": 1\n    },\n    {\n      \"lat\": 53.4808,\n      \"lon\": -2.2426,\n      \"limit\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Autocomplete a partial postcode",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autocomplete?q=SW1A%201&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autocomplete"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "SW1A%201",
+                  "description": "What has been typed so far.",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many results (1 to 20, default 10).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free: keystrokes are never billed. Send at least 2 characters.\n\nBilling: Free (fair use). Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: Free (fair use)"
+          }
+        },
+        {
+          "name": "Distance between two postcodes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/distance?from=SW1A%201AA&to=EH1%201YZ",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "distance"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "SW1A%201AA",
+                  "description": "First postcode.",
+                  "disabled": false
+                },
+                {
+                  "key": "to",
+                  "value": "EH1%201YZ",
+                  "description": "Second postcode.",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Straight-line distance in kilometres and miles, and the compass bearing from the first to the second.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Geography",
+      "item": [
+        {
+          "name": "A postcode district",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/outcodes/SW1A",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "outcodes",
+                "SW1A"
+              ],
+              "query": []
+            },
+            "description": "One district (the outward code, e.g. SW1A): how many live and terminated postcodes, its sectors, centre, councils, wards, constituencies and places.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
+          }
+        },
+        {
+          "name": "Every postcode in a district",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/outcodes/SW1A/postcodes?after=SW1A%201AA&limit=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "outcodes",
+                "SW1A",
+                "postcodes"
+              ],
+              "query": [
+                {
+                  "key": "after",
+                  "value": "SW1A%201AA",
+                  "description": "Cursor: the last postcode of the previous page.",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "How many results (1 to 500, default 100).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "The district's live postcodes with coordinates, in order, a page at a time. Pass the last postcode you received as after= to get the next page.\n\nBilling: 1 lookup per page. Secret (server) keys only.\n\nBilling: 1 lookup per page"
+          }
+        },
+        {
+          "name": "A postcode sector",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sectors/SW1A%201",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sectors",
+                "SW1A%201"
+              ],
+              "query": []
+            },
+            "description": "One sector (e.g. SW1A 1): its live postcodes with coordinates, centre, and the councils and wards it covers.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
+          }
+        },
+        {
+          "name": "A postcode area",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/areas/SW",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "areas",
+                "SW"
+              ],
+              "query": []
+            },
+            "description": "One postcode area (the letters, e.g. SW): its name, counts and every district in it.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Places",
+      "item": [
+        {
+          "name": "Find a place",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/places?q=Chelsea&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "places"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Chelsea",
+                  "description": "Place name or its start.",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many results (1 to 20, default 10).",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Cities, towns, villages and neighbourhoods by name (OS Open Names), each with its postcode district and coordinates.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when anything is found"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Your usage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usage"
+              ],
+              "query": []
+            },
+            "description": "Your plan, this period's allowance, lookups used, credits and when the allowance resets.\n\nBilling: Free. Secret (server) keys only.\n\nBilling: Free"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "Addresses at a postcode (early access)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addresses?postcode=SW1A%201AA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "postcode",
+                  "value": "SW1A%201AA",
+                  "description": "Postcode.",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Every Royal Mail PAF address at a postcode, with UDPRN, line_1 to line_3, post_town and organisation. In early access: join the list at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address lookup per postcode (early access). Works with publishable (browser) keys.\n\nBilling: 1 address lookup per postcode (early access)\n\nStatus: preview"
+          }
+        },
+        {
+          "name": "Address autocomplete (early access)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addresses/suggest?q=10%20Downing",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses",
+                "suggest"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "10%20Downing",
+                  "description": "What has been typed.",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Suggestions as the customer types; suggestions are always free, only the address you resolve is billed.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
+          }
+        },
+        {
+          "name": "Resolve one address (early access)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addresses/23747771",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses",
+                "23747771"
+              ],
+              "query": []
+            },
+            "description": "The full PAF address for a UDPRN from a suggestion.\n\nBilling: 1 address lookup. Works with publishable (browser) keys.\n\nBilling: 1 address lookup\n\nStatus: preview"
+          }
+        }
+      ]
+    }
+  ]
+}

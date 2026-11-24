@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "uk.co.clearpostcode/postcodes",
+  "title": "Clear Postcode",
+  "description": "Live UK postcode data for AI: look up, validate, find nearest, council, ward, constituency. Free.",
+  "version": "1.0.0",
+  "websiteUrl": "https://clearpostcode.co.uk/mcp",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://clearpostcode.co.uk/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Optional API key as a Bearer token (Bearer <key>) to raise rate limits. Not needed for free use.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
