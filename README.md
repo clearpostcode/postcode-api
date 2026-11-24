@@ -34,8 +34,8 @@ is optional: add it as `Authorization: Bearer <key>` to raise your limits.
 
 ```sh
 curl https://api.clearpostcode.co.uk/v1/postcodes/SW1A%201AA
-npm install clearpostcode      # JavaScript and TypeScript: ./npm
-uv add clearpostcode           # Python 3.12+: ./pypi
+npm install clearpostcode      # JavaScript and TypeScript: ./npm, https://www.npmjs.com/package/clearpostcode
+uv add clearpostcode           # Python 3.12+: ./pypi, https://pypi.org/project/clearpostcode/
 ```
 
 JavaScript and TypeScript (no dependencies, ESM and types):
