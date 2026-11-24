@@ -1,7 +1,7 @@
 [project]
 name = "clearpostcode"
 version = "1.0.0"
-description = "UK postcode API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. Standard library only."
+description = "UK postcode data API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. Standard library only."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

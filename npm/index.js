@@ -1,4 +1,4 @@
-// ClearPostcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
+// ClearPostcode API client for UK postcode data: lookup, validation, autocomplete, nearest, reverse geocoding, distance and
 // area data. No dependencies. Docs: https://clearpostcode.co.uk/developers/docs
 export const BASE = "https://api.clearpostcode.co.uk/v1";
 
@@ -16,7 +16,7 @@ export class ClearPostcodeError extends Error {
 const seg = (s) => encodeURIComponent(String(s).trim());
 
 export class ClearPostcode {
-  /** @param {{ key?: string, base?: string, fetch?: typeof fetch, timeout?: number }} [opts] key: cp_live_ (secret) or cp_pub_ (publishable); most lookups also work without one. */
+  /** @param {{ key?: string, base?: string, fetch?: typeof fetch, timeout?: number }} [opts] key: cp_live_ (secret) or cp_pub_ (publishable); most postcode lookups also work without one. */
   constructor(opts = {}) {
     this.key = opts.key;
     this.base = opts.base ?? BASE;

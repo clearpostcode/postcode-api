@@ -1,5 +1,5 @@
-"""ClearPostcode API client: UK postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance and
-area data. Standard library only. Docs: https://clearpostcode.co.uk/developers/docs"""
+"""ClearPostcode API client for UK postcode data: lookup, validation, autocomplete, nearest, reverse geocoding,
+distance and area data. Standard library only. Docs: https://clearpostcode.co.uk/developers/docs"""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _seg(value: object) -> str:
 
 
 class ClearPostcode:
-    """key: cp_live_ (secret) or cp_pub_ (publishable). Most lookups also work without one (rate-limited per IP)."""
+    """key: cp_live_ (secret) or cp_pub_ (publishable). Most calls also work without one (rate-limited per IP)."""
 
     def __init__(self, key: str | None = None, base: str = BASE, timeout: float = 20):
         self.key, self.base, self.timeout = key, base, timeout

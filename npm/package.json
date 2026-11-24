@@ -1,7 +1,7 @@
 {
   "name": "clearpostcode",
   "version": "1.0.0",
-  "description": "UK postcode API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. No dependencies.",
+  "description": "UK postcode data API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. No dependencies.",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",

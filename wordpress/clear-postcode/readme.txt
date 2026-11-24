@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Check UK postcodes at WooCommerce checkout and add a postcode checker to any page. Free: 10,000 lookups a month, no card.
+Check UK postcodes at WooCommerce checkout and add a postcode checker to any page. Free: 10,000 postcode lookups a month, no card.
 
 == Description ==
 
@@ -17,7 +17,7 @@ Stop undeliverable orders and typo'd addresses before they happen. ClearPostcode
 * **WooCommerce checkout check:** billing and shipping postcodes are validated when the customer places the order, on both the classic checkout and the Checkout block. A bad postcode gets a clear message. If the service can't be reached, the order goes through: your checkout never stalls.
 * **Postcode checker:** `[clear_postcode_lookup]` shows a box where visitors type a postcode and see its council, ward, constituency, region and country.
 * **Fast:** answers are cached for 12 hours, so repeat postcodes cost nothing.
-* **Free to start:** 10,000 lookups a month, no card. A publishable key (`cp_pub_...`) is optional; without one the keyless allowance applies.
+* **Free to start:** 10,000 postcode lookups a month, no card. A publishable key (`cp_pub_...`) is optional; without one the keyless allowance applies.
 
 Settings are under Settings, ClearPostcode. Get your free key at https://clearpostcode.co.uk/developers.
 
@@ -42,7 +42,7 @@ Postcode data: Contains OS data © Crown copyright and database right; Royal Mai
 
 = Is it free? =
 
-Yes. The free plan is 10,000 lookups a month with no card. Paid plans are for bigger shops.
+Yes. The free plan is 10,000 postcode lookups a month with no card. Paid plans are for bigger shops.
 
 = Do I need a key? =
 

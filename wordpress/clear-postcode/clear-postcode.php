@@ -236,7 +236,7 @@ add_shortcode(
 	}
 );
 
-/** Checker request: nonce, a small per-visitor allowance, then one lookup (cached for 12 hours). */
+/** Checker request: nonce, a small per-visitor allowance, then one postcode lookup (cached for 12 hours). */
 function clear_postcode_ajax_check() {
 	if ( ! check_ajax_referer( 'clear_postcode_check', 'nonce', false ) ) {
 		wp_send_json_error( array( 'message' => __( 'Please reload the page and try again.', 'clear-postcode' ) ), 403 );
@@ -354,7 +354,7 @@ function clear_postcode_settings_page() {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'ClearPostcode', 'clear-postcode' ); ?></h1>
 		<p>
-			<?php esc_html_e( 'Get a free publishable key (10,000 lookups a month, no card) at', 'clear-postcode' ); ?>
+			<?php esc_html_e( 'Get a free publishable key (10,000 postcode lookups a month, no card) at', 'clear-postcode' ); ?>
 			<a href="<?php echo esc_url( 'https://clearpostcode.co.uk/developers#key' ); ?>" target="_blank" rel="noopener">clearpostcode.co.uk/developers</a>.
 		</p>
 		<?php settings_errors( 'clear_postcode_key' ); ?>

@@ -1,13 +1,16 @@
-# ClearPostcode: UK postcode API and AI-assistant connector
+# ClearPostcode: UK postcode data API and AI-assistant connector
 
 Every UK postcode, answered instantly: look up, validate and autocomplete, with its council, ward, constituency,
 coordinates, police force, NHS area and deprivation decile. Find the nearest postcodes, reverse geocode a point, measure
 the distance between two postcodes and search places. Built on the ONS Postcode Directory and OS Open Names, and free to
-start: **10,000 lookups a month, free, no card.**
+start: **10,000 postcode lookups a month, free, no card.**
+
+Two products, one key: **Postcode data** (every UK postcode with its council, ward, constituency, coordinates and more,
+from open data) and **Address lookup** (every address at a postcode, from Royal Mail PAF; early access).
 
 - **Website and free key:** https://clearpostcode.co.uk/developers
 - **Docs, every field:** https://clearpostcode.co.uk/developers/docs
-- **REST base:** `https://api.clearpostcode.co.uk/v1` (key optional on lookups, CORS on) · [OpenAPI 3.1](https://clearpostcode.co.uk/openapi.json)
+- **REST base:** `https://api.clearpostcode.co.uk/v1` (key optional on single postcode lookups, CORS on) · [OpenAPI 3.1](https://clearpostcode.co.uk/openapi.json)
 - **AI-assistant connector (MCP, Streamable HTTP):** https://clearpostcode.co.uk/mcp · registry name `uk.co.clearpostcode/postcodes`
 
 Send your key in an `x-api-key` header. Keys start `cp_live_` (secret, for servers) or `cp_pub_` (publishable, safe in
@@ -57,8 +60,8 @@ print(r["data"]["local_authority"]["name"], r["data"]["constituency"]["name"])
 print(cp.validate("m1 1ae")["data"]["valid"])  # True
 ```
 
-Both clients cover every endpoint (lookup, validate, nearest, reverse, bulk, autocomplete, distance, outcodes, sectors,
-areas, places, usage and the early-access address endpoints) and raise a typed error with `status`, `problem` and
+Both clients cover every endpoint (postcode lookup, validate, nearest, reverse, bulk, autocomplete, distance, outcodes, sectors,
+areas, places, usage and the early-access address lookup endpoints) and raise a typed error with `status`, `problem` and
 `request_id`. Per-package pages: [npm](npm/README.md) · [pypi](pypi/README.md).
 
 ## Add a postcode check to your WordPress or WooCommerce site
@@ -75,7 +78,7 @@ the live OpenAPI document with `node postman/generate.mjs`.
 
 ## Plans
 
-Free: 10,000 lookups a month, no card. Paid plans for more ([plans](https://clearpostcode.co.uk/pricing)). Not-found
+Free: 10,000 postcode lookups a month, no card. Paid plans for more ([plans](https://clearpostcode.co.uk/pricing)). Not-found
 answers, autocomplete and `304 Not Modified` responses cost nothing.
 
 ## Licence

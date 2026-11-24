@@ -1,8 +1,8 @@
-# ClearPostcode: UK postcode API for JavaScript
+# ClearPostcode: UK postcode data API for JavaScript
 
-Look up, validate and autocomplete any UK postcode, and get its council, ward, constituency, coordinates, police force
+Postcode data for any UK postcode: look it up, validate and autocomplete it, and get its council, ward, constituency, coordinates, police force
 and more, from the ONS Postcode Directory and OS Open Names. Nearest postcodes, reverse geocoding, distances and
-places too. No dependencies. Free: 10,000 lookups a month, no card, and the common lookups work with no key at all.
+places too. No dependencies. Free: 10,000 postcode lookups a month, no card, and single postcode lookups work with no key at all.
 
 ```sh
 npm install clearpostcode
@@ -44,7 +44,7 @@ try {
 | `bulkReverse(points)` | `POST /reverse` (up to 20) | secret key |
 | `outcodePostcodes(outcode, { after, limit })` | `GET /outcodes/{outcode}/postcodes` | secret key |
 | `usage()` | `GET /usage` | any key |
-| `addresses(postcode)`, `addressSuggest(q)`, `address(udprn)` | `GET /addresses` (early access) | key |
+| `addresses(postcode)`, `addressSuggest(q)`, `address(udprn)` | `GET /addresses` (early access, Royal Mail PAF) | key |
 
 Keys start `cp_live_` (secret, keep on the server) or `cp_pub_` (publishable, safe in a browser).
 
