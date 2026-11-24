@@ -124,7 +124,7 @@ function clear_postcode_countries() {
 
 function clear_postcode_message( $label, $postcode ) {
 	/* translators: 1: "Billing postcode" or "Shipping postcode", 2: the postcode as typed. */
-	return sprintf( __( '%1$s "%2$s" is not a UK postcode we can find. Please check it and try again.', 'clear-postcode' ), $label, esc_html( $postcode ) );
+	return sprintf( __( '%1$s “%2$s” is not a UK postcode we can find. Please check it and try again.', 'clear-postcode' ), $label, $postcode );
 }
 
 /** WooCommerce checkout (classic shortcode checkout): billing and, when used, shipping postcode. */
@@ -149,7 +149,7 @@ add_action(
 			}
 			$result = clear_postcode_validate( $postcode );
 			if ( clear_postcode_blocks( $result['state'] ) ) {
-				$errors->add( $type . '_postcode_clear_postcode', clear_postcode_message( $label, $postcode ) );
+				$errors->add( $type . '_postcode_clear_postcode', esc_html( clear_postcode_message( $label, $postcode ) ) );
 			}
 		}
 	},
@@ -177,7 +177,7 @@ add_action(
 			}
 			$result = clear_postcode_validate( $postcode );
 			if ( clear_postcode_blocks( $result['state'] ) ) {
-				throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'clear_postcode_invalid', clear_postcode_message( $label, $postcode ), 400 );
+				throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'clear_postcode_invalid', esc_html( clear_postcode_message( $label, $postcode ) ), 400 );
 			}
 		}
 	}
