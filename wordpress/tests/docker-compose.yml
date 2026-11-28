@@ -1,0 +1,37 @@
+# A throwaway WordPress with WooCommerce for the plugin's tests (run.sh starts and removes it).
+name: clear-postcode-test
+x-db: &db
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_USER: wp
+  WORDPRESS_DB_PASSWORD: wp
+  WORDPRESS_DB_NAME: wp
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: wp
+      MARIADB_USER: wp
+      MARIADB_PASSWORD: wp
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+  wordpress:
+    image: wordpress:php8.3-apache
+    depends_on: [db]
+    environment: *db
+    ports: ["127.0.0.1:${WP_PORT:-8089}:80"]
+    volumes:
+      - wp:/var/www/html
+      - ../clear-postcode:/var/www/html/wp-content/plugins/clear-postcode:ro
+  cli:
+    image: wordpress:cli
+    user: "33:33"
+    depends_on: [wordpress]
+    environment:
+      <<: *db
+      HOME: /tmp
+    entrypoint: ["sleep", "infinity"]
+    volumes:
+      - wp:/var/www/html
+      - ../clear-postcode:/var/www/html/wp-content/plugins/clear-postcode:ro
+      - .:/tests:ro
+volumes:
+  wp:

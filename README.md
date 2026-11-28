@@ -66,9 +66,12 @@ areas, places, usage and the early-access address lookup endpoints) and raise a 
 
 ## Add a postcode check to your WordPress or WooCommerce site
 
-Install the plugin in [`wordpress/clear-postcode`](wordpress/clear-postcode). It checks billing and shipping postcodes
-at WooCommerce checkout (classic and Checkout block) with your publishable key, and adds a postcode checker anywhere
-with `[clear_postcode_lookup]`.
+[Download clear-postcode.zip](https://github.com/clearpostcode/postcode-api/releases/latest/download/clear-postcode.zip)
+and upload it under Plugins, Add New Plugin, Upload Plugin (source: [`wordpress/clear-postcode`](wordpress/clear-postcode)).
+It checks billing and shipping postcodes at WooCommerce checkout (classic and Checkout block) from your server with
+your secret key (`cp_live_`, checked with the API as you save it), and adds a postcode checker anywhere with
+`[clear_postcode_lookup]`. Tests: `wordpress/tests/run.sh` (real WordPress and WooCommerce in Docker, Plugin Check and
+PHPCS).
 
 ## Try it in Postman
 

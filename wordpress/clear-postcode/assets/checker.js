@@ -1,6 +1,6 @@
 ( function () {
 	'use strict';
-	var cfg = window.clearPostcode;
+	var cfg = window.clearPostcodeChecker;
 	if ( ! cfg ) {
 		return;
 	}
@@ -37,8 +37,8 @@
 						var strong = document.createElement( 'strong' );
 						strong.textContent = d.postcode;
 						box.appendChild( strong );
-						if ( d.status === 'terminated' && d.replaced_by ) {
-							text( box, ' (no longer in use; nearest live postcode ' + d.replaced_by + ')' );
+						if ( d.status === 'terminated' ) {
+							text( box, ' ' + ( d.replaced_by ? cfg.terminated.replace( '%s', d.replaced_by ) : cfg.retired ) );
 						}
 						var list = document.createElement( 'dl' );
 						d.rows.forEach( function ( row ) {

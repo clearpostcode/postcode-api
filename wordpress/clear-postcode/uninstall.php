@@ -1,13 +1,16 @@
 <?php
 /**
  * Removes the plugin's settings and cached answers when the plugin is deleted.
+ *
+ * @package ClearPostcode
  */
+
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
-delete_option( 'clear_postcode_key' );
-delete_option( 'clear_postcode_checkout' );
-delete_option( 'clear_postcode_strict' );
+foreach ( array( 'clear_postcode_secret_key', 'clear_postcode_checkout', 'clear_postcode_strict', 'clear_postcode_alert' ) as $clear_postcode_option ) {
+	delete_option( $clear_postcode_option );
+}
 
 global $wpdb;
 $clear_postcode_like = $wpdb->esc_like( '_transient_clear_postcode_' ) . '%';
