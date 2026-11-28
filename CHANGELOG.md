@@ -1,5 +1,25 @@
 # What's new
 
+## WordPress plugin 1.1.0 (28 November 2026)
+
+- **The postcode finder at checkout:** postcodes formatted, suggested and checked as customers type, on the classic
+  checkout, the Checkout block and My account addresses, with a clear message for a mistyped, retired or brand-new
+  postcode. With a publishable key whose account has Address lookup, the same box finds the full address.
+- **Contact Form 7 and WPForms:** a `[postcode* your-postcode]` tag and the `clear-postcode` CSS class give forms the
+  finder and a postcode check on sending.
+- **The postcode checker answers as visitors type**, straight from their browser, so it works behind page caches and
+  costs your server nothing.
+- **A Publishable key setting**, checked against your domain as you save; the secret key is never shown again once
+  saved.
+
+## JavaScript 2.1.1 (28 November 2026)
+
+- The finder shows values in any element, not only form fields: put the council in a `<dd>` or a `<span>`.
+- A publishable key the API refuses (not yet locked to the site's domain, or revoked) no longer stops the finder: it
+  carries on keyless and says why in the console.
+- A press on a button no longer moves it: the "full UK postcode" message from leaving the field waits until the press
+  is released.
+
 ## JavaScript 2.1.0 (28 November 2026): the postcode finder
 
 - **A postcode and address finder for any form, in one script tag.** As the customer types, it formats the postcode,

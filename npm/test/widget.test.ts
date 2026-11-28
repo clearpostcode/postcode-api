@@ -108,6 +108,18 @@ test("nothing from the last postcode outlives the next: the finder clears only w
   assert.equal($("#seat").value, "Typed by hand", "a value the customer typed stays");
 });
 
+test("a target that is not a form field shows the value as text", async () => {
+  form(`<input id="pc" autocomplete="postal-code"><dl><dt>Council</dt><dd id="council" data-clearpostcode="council"></dd></dl>`);
+  const input = $("#pc");
+  attach(input, { fetch: postcodeApi().fetch });
+  type(input, "SW1A 1AA");
+  await sleep(20);
+  assert.equal($<HTMLElement>("#council").textContent, "Westminster");
+  type(input, "SW1A 9ZZ");
+  await sleep(20);
+  assert.equal($<HTMLElement>("#council").textContent, "");
+});
+
 test("suggestions: the list opens, arrows move the active option, Enter picks, Escape closes", async () => {
   form(`<input id="pc" autocomplete="postal-code">`);
   const { fetch, calls } = postcodeApi();
@@ -174,6 +186,13 @@ test("unknown, retired, Northern Ireland and badly formed postcodes each get a c
   input.dispatchEvent(new Event("blur"));
   assert.equal(statusOf(input).textContent, "Enter a full UK postcode, like SW1A 1AA.");
   assert.equal(input.getAttribute("aria-invalid"), "true");
+  type(input, "ZZ8");
+  document.dispatchEvent(new window.PointerEvent("pointerdown") as unknown as Event);
+  input.dispatchEvent(new Event("blur"));
+  assert.equal(statusOf(input).textContent, "", "a press elsewhere: nothing moves under the pointer yet");
+  document.dispatchEvent(new window.PointerEvent("pointerup") as unknown as Event);
+  await sleep(10);
+  assert.equal(statusOf(input).textContent, "Enter a full UK postcode, like SW1A 1AA.");
 });
 
 const PUB = `cp_pub_${"a".repeat(32)}`;
@@ -240,6 +259,32 @@ test("a key without Address lookup falls back to postcode mode, once for every f
   assert.deepEqual(calls.map((u) => u.pathname), ["/v1/addresses/suggest", "/v1/autocomplete"]);
   form(`<input id="pc2" autocomplete="postal-code">`);
   assert.equal(attach($("#pc2"), { key, fetch }).mode, "postcode");
+});
+
+test("a publishable key the API refuses is dropped: the finder carries on keyless", async () => {
+  const refusedKey = `cp_pub_${"d".repeat(32)}`;
+  form(`<input id="pc" autocomplete="postal-code">`);
+  const { fetch, calls } = api((u) => (u.searchParams.get("key") ? problem(403, "origin_not_allowed") : ok(RECORD)));
+  const warned: unknown[] = [];
+  const warn = console.warn;
+  console.warn = (...a: unknown[]) => void warned.push(a);
+  try {
+    const input = $("#pc");
+    const finder = attach(input, { key: refusedKey, mode: "postcode", fetch });
+    type(input, "SW1A 1AA");
+    await sleep(30);
+    assert.equal(statusOf(input).textContent, "SW1A 1AA · Westminster");
+    assert.deepEqual(calls.map((u) => u.searchParams.has("key")), [true, false]);
+    assert.equal(finder.mode, "postcode");
+    assert.match(String((warned[0] as unknown[])[0]), /origin_not_allowed/);
+    form(`<input id="pc2" autocomplete="postal-code">`);
+    attach($("#pc2"), { key: refusedKey, fetch });
+    type($("#pc2"), "SW1A 1AA");
+    await sleep(30);
+    assert.equal(calls.at(-1)!.searchParams.has("key"), false, "other finders with the key start keyless");
+  } finally {
+    console.warn = warn;
+  }
 });
 
 test("billing and shipping in one form: each finder fills its own section", async () => {

@@ -78,7 +78,7 @@ export interface FinderOptions {
   mode?: "auto" | "postcode" | "address";
   /** Where each field is, as a CSS selector or an element; null leaves a field alone. Otherwise the finder looks in
    *  the input's part of the form for [data-clearpostcode="<field>"], then the autocomplete token (postal-code,
-   *  address-line1, address-level2…). */
+   *  address-line1, address-level2…). A target that is not a form field (a <dd>, a <span>) shows the value as text. */
   fields?: Partial<Record<FieldName, string | HTMLElement | null>>;
   /** Your own wording (any message; "" says nothing). */
   messages?: Partial<Messages>;
@@ -110,12 +110,22 @@ export function formatPostcode(input: string): string | null {
 
 /** Address lookup, by key, once an auto finder has asked: every finder with the key shares the answer. */
 const modes = new Map<string, "postcode" | "address">();
+/** Keys the API refused (another site's domain, revoked): finders with them run keyless. */
+const refused = new Set<string>();
 let ids = 0;
 
 const fill = (text: string, values: Record<string, string | number | undefined | null>) => text.replace(/\{(\w+)\}/g, (_, k: string) => String(values[k] ?? ""));
 
-/** Set a field's value as a person would, so React, Vue and plain listeners all see it. */
+const isField = (el: HTMLElement) => el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA";
+/** A target's value: a form field's value, or the text of anything else (a <dd> or <span> showing the council). */
+const valueOf = (el: HTMLElement) => (isField(el) ? (el as HTMLInputElement).value : (el.textContent ?? ""));
+
+/** Set a field's value as a person would, so React, Vue and plain listeners all see it; anything else gets the text. */
 function setValue(el: HTMLElement, value: string): void {
+  if (!isField(el)) {
+    el.textContent = value;
+    return;
+  }
   if (el.tagName === "SELECT") {
     const want = value.toLowerCase();
     const opt = [...(el as HTMLSelectElement).options].find((o) => o.value.toLowerCase() === want || o.text.trim().toLowerCase() === want);
@@ -137,11 +147,25 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
   const doc = input.ownerDocument;
   const key = options.key || null;
   if (key && !key.startsWith("cp_pub_")) throw new ClearPostcodeError("The finder runs in the browser: use a publishable key (cp_pub_), never a secret one.");
-  const t = new Transport(transportConfig({ baseUrl: options.baseUrl, fetch: options.fetch, maxRetries: 1, timeout: 8000 }, key, { keyInQuery: true, headers: {} }));
-  const postcodes = new Postcodes(t);
-  const addresses = new Addresses(t);
+  const client = (k: string | null) => new Transport(transportConfig({ baseUrl: options.baseUrl, fetch: options.fetch, maxRetries: 1, timeout: 8000 }, k, { keyInQuery: true, headers: {} }));
+  let keyed = !!key && !refused.has(key);
+  let postcodes = new Postcodes(client(keyed ? key : null));
+  let addresses = new Addresses(client(keyed ? key : null));
   const say: Messages = { ...MESSAGES, ...options.messages };
-  let mode: "postcode" | "address" | null = options.mode === "postcode" || !key ? "postcode" : options.mode === "address" ? "address" : (modes.get(key) ?? null);
+  let mode: "postcode" | "address" | null = options.mode === "postcode" || !keyed ? "postcode" : options.mode === "address" ? "address" : (modes.get(key!) ?? null);
+
+  /** A key the API refuses (not locked to this domain, revoked) is dropped: the finder carries on keyless. */
+  function dropKey(e: unknown): boolean {
+    const code = e instanceof APIError ? e.code : null;
+    if (!keyed || (code !== "invalid_key" && code !== "origin_not_allowed")) return false;
+    keyed = false;
+    mode = "postcode";
+    refused.add(key!);
+    postcodes = new Postcodes(client(null));
+    addresses = new Addresses(client(null));
+    console.warn(`ClearPostcode finder: the API refused the publishable key (${code}), so the finder runs without it. ${code === "origin_not_allowed" ? `Add ${doc.location?.hostname ?? "this site"} to the key's domains in your dashboard.` : "Check the key in your dashboard."}`);
+    return true;
+  }
 
   const n = ++ids;
   const list = doc.createElement("ul");
@@ -199,7 +223,7 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
   function put(name: FieldName, value: string | number | null | undefined): void {
     const el = field(name);
     if (!el) return;
-    const now = (el as HTMLInputElement).value;
+    const now = valueOf(el);
     const next = value === null || value === undefined ? (mine.has(el) && mine.get(el) === now ? "" : null) : String(value);
     if (next === null) return;
     mine.set(el, next);
@@ -307,6 +331,7 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
       }
       options.onPostcode?.(rec);
     } catch (e) {
+      if (dropKey(e)) return check(pc);
       const code = e instanceof APIError ? e.code : null;
       clearRecord();
       if (code === "postcode_not_found") show(fill(say.unknown, { postcode: pc }), "warn");
@@ -335,7 +360,8 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
             : { label: s.postcode, pick: () => pick(s.postcode) },
         ),
       );
-    } catch {
+    } catch (e) {
+      if (dropKey(e)) return suggestPostcodes(q);
       close(); // Suggestions are a convenience: the check on a full postcode still runs.
     }
   }
@@ -357,6 +383,7 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
       else open(r.data.map(containerItem));
       return true;
     } catch (e) {
+      if (dropKey(e)) return false;
       const code = e instanceof APIError ? e.code : null;
       if (code === "address_lookup_not_enabled" || code === "key_required" || code === "address_credits_exhausted" || code === "publishable_key_not_allowed") {
         if (key) modes.set(key, (mode = "postcode"));
@@ -450,17 +477,27 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
       close();
     } else if (e.key === "Tab") close();
   }
+  /** A pointer press moves the focus first: a message shown then would push the button being clicked out from under
+   *  the pointer. So a blur from a press shows its message once the press is released. */
+  let pressing = false;
+  const press = () => (pressing = true);
   function onBlur(): void {
     close();
     const v = input!.value.trim();
-    if (v && mode === "postcode" && !formatPostcode(v)) show(say.invalid, "error");
+    if (!v || mode !== "postcode" || formatPostcode(v)) return;
+    const say_ = () => input!.value.trim() === v && show(say.invalid, "error");
+    if (!pressing) return void say_();
+    doc.addEventListener("pointerup", () => setTimeout(say_, 0), { once: true });
   }
+  const release = () => setTimeout(() => (pressing = false), 0);
   const keep = (e: Event) => e.preventDefault(); // a click on the list keeps the focus in the input
 
   input.addEventListener("input", onInput);
   input.addEventListener("keydown", onKey);
   input.addEventListener("blur", onBlur);
   list.addEventListener("mousedown", keep);
+  doc.addEventListener("pointerdown", press, true);
+  doc.addEventListener("pointerup", release, true);
 
   return {
     get mode() {
@@ -472,6 +509,8 @@ export function attach(target: string | HTMLInputElement, options: FinderOptions
       input.removeEventListener("input", onInput);
       input.removeEventListener("keydown", onKey);
       input.removeEventListener("blur", onBlur);
+      doc.removeEventListener("pointerdown", press, true);
+      doc.removeEventListener("pointerup", release, true);
       list.remove();
       status.remove();
       sr.remove();

@@ -1,6 +1,6 @@
 {
   "name": "clearpostcode",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "UK postcode lookup API client and drop-in postcode and address finder: validate, autocomplete, nearest, reverse geocode, distance, council, ward and constituency, plus Royal Mail address lookup. Typed, retries built in, no dependencies.",
   "type": "module",
   "main": "./dist/cjs/index.js",
