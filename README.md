@@ -109,7 +109,24 @@ example answer. Rebuild it with `node postman/generate.mjs`.
 - JavaScript: `cd npm && npm test` (mocked API), `npm run smoke` (every README block, live, keyless),
   `npm run check:package` (publint and attw).
 - Python: `cd pypi && uv run pytest`, `uv run ruff check`, `uv run mypy`, `uv run python scripts/smoke.py` (live).
-- WordPress: `wordpress/tests/run.sh`, then `wordpress/build-zip.sh` for the release asset.
+- WordPress: `wordpress/tests/run.sh` (add `BROWSER=1` for the browser run on a faked API, `KEEP=1` to leave the test
+  shop up on http://localhost:8089), then `wordpress/build-zip.sh`, which builds the finder from `npm` into the plugin's
+  assets and writes `dist/clear-postcode.zip`.
+
+## Releasing
+
+- npm: `cd npm && npm publish --access public` (`prepublishOnly` fails if the live OpenAPI document has moved ahead of
+  the snapshot, then runs the tests and the build). The registry answers "being processed" and shows the version a
+  few minutes later; jsDelivr serves `dist/widget.js` at once.
+- PyPI: `cd pypi && uv build && uv publish` (run `node ../scripts/generate.mjs --live` first).
+- Tokens: the vault's `CLEARPOSTCODE_NPM_TOKEN` and `CLEARPOSTCODE_PYPI_TOKEN` (master-builder credentials); the npm
+  token expires on 1 December 2026.
+- GitHub: every release carries `clear-postcode.zip`, and the newest plugin release is marked latest, so
+  `releases/latest/download/clear-postcode.zip` always answers. Tags: `wordpress-vX.Y.Z` for the plugin, `vX.Y.Z` for
+  the SDKs.
+- MCP registry: `mcp-publisher login dns --domain clearpostcode.co.uk` (key in `MCP_PRIVATE_KEY`, from the vault's
+  `MCP_REGISTRY_CLEARPOSTCODE_KEY`), then `mcp-publisher publish` in the main repo's `mcp/`; keep `server.json` here in
+  step with it.
 
 ## Plans
 
