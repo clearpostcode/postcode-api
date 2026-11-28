@@ -3,12 +3,12 @@
   "name": "uk.co.clearpostcode/postcodes",
   "title": "ClearPostcode",
   "description": "Live UK postcode data for AI: look up, validate, find nearest, council, ward, constituency. Free.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "websiteUrl": "https://clearpostcode.co.uk/mcp",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://clearpostcode.co.uk/mcp",
+      "url": "https://api.clearpostcode.co.uk/mcp",
       "headers": [
         {
           "name": "Authorization",

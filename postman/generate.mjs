@@ -1,10 +1,12 @@
-// Builds postman/clear-postcode.postman_collection.json from the live OpenAPI document.
-// Usage: node postman/generate.mjs [openapi-url-or-file]   (default: https://clearpostcode.co.uk/openapi.json)
+// Builds postman/clear-postcode.postman_collection.json from the OpenAPI document the SDKs are generated from.
+// Usage: node postman/generate.mjs [openapi-url-or-file]   (default: openapi/openapi.json in this repo)
+// Path parameters are Postman :variables with the document's examples; each request carries the document's example
+// answer, so the collection shows what comes back before a call is sent.
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const src = process.argv[2] ?? "https://clearpostcode.co.uk/openapi.json";
+const src = process.argv[2] ?? join(dirname(fileURLToPath(import.meta.url)), "../openapi/openapi.json");
 const spec = JSON.parse(src.startsWith("http") ? await (await fetch(src)).text() : await readFile(src, "utf8"));
 const out = join(dirname(fileURLToPath(import.meta.url)), "clear-postcode.postman_collection.json");
 
@@ -17,10 +19,7 @@ for (const [path, ops] of Object.entries(spec.paths)) {
     const params = op.parameters ?? [];
     const pathParams = params.filter((p) => p.in === "path");
     const query = params.filter((p) => p.in === "query");
-    const segments = path.split("/").filter(Boolean).map((s) => {
-      const m = /^\{(.+)\}$/.exec(s);
-      return m ? encodeURIComponent(sample(pathParams.find((p) => p.name === m[1]) ?? {})) : s;
-    });
+    const segments = path.split("/").filter(Boolean).map((s) => s.replace(/^\{(.+)\}$/, ":$1"));
     const body = op.requestBody?.content?.["application/json"];
     const description = [op.description ?? op.summary, op["x-billing"] && `Billing: ${op["x-billing"]}`, op["x-status"] && `Status: ${op["x-status"]}`]
       .filter(Boolean)
@@ -33,17 +32,22 @@ for (const [path, ops] of Object.entries(spec.paths)) {
         ...(body ? [{ key: "content-type", value: "application/json" }] : []),
       ],
       url: {
-        raw: `{{baseUrl}}/${segments.join("/")}${query.length ? "?" + query.map((p) => `${p.name}=${encodeURIComponent(sample(p))}`).join("&") : ""}`,
+        raw: `{{baseUrl}}/${segments.join("/")}${query.some((p) => p.required) ? "?" + query.filter((p) => p.required).map((p) => `${p.name}=${encodeURIComponent(sample(p))}`).join("&") : ""}`,
         host: ["{{baseUrl}}"],
         path: segments,
         query: query.map((p) => ({ key: p.name, value: encodeURIComponent(sample(p)), description: p.description, disabled: !p.required })),
+        variable: pathParams.map((p) => ({ key: p.name, value: sample(p), description: p.description })),
       },
       description,
       ...(body ? { body: { mode: "raw", raw: JSON.stringify(body.example ?? {}, null, 2), options: { raw: { language: "json" } } } } : {}),
     };
     const tag = op.tags?.[0] ?? "Other";
     if (!items.has(tag)) items.set(tag, []);
-    items.get(tag).push({ name: op.summary ?? op.operationId, request });
+    const example = op.responses?.["200"]?.content?.["application/json"]?.example;
+    const response = example
+      ? [{ name: "200 OK", originalRequest: request, status: "OK", code: 200, header: [{ key: "content-type", value: "application/json" }], body: JSON.stringify(example, null, 2), _postman_previewlanguage: "json" }]
+      : [];
+    items.get(tag).push({ name: op.summary ?? op.operationId, request, response });
   }
 }
 

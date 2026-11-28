@@ -35,25 +35,87 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/postcodes/SW1A%201AA?fields=location%2Clocal_authority%2Cward",
+              "raw": "{{baseUrl}}/postcodes/:postcode",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "postcodes",
-                "SW1A%201AA"
+                ":postcode"
               ],
               "query": [
                 {
                   "key": "fields",
                   "value": "location%2Clocal_authority%2Cward",
-                  "description": "Comma-separated top-level fields to return (postcode and status always come back).",
+                  "description": "Comma-separated top-level fields to return (postcode and status always come back). An unknown field answers 400 with the list.",
                   "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "postcode",
+                  "value": "SW1A 1AA",
+                  "description": "Any UK postcode, in any case, with or without the space."
                 }
               ]
             },
-            "description": "Everything about one postcode: status (live or terminated), coordinates with positional quality, and every area it sits in (country, region, county, council, ward, parish, constituency, police force, NHS board, census areas), plus rural-urban class and deprivation decile. A terminated postcode answers 200 with status \"terminated\", the month it ended and the nearest live postcode in replaced_by.\n\nBilling: 1 lookup when found; not found is free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when found; not found is free"
-          }
+            "description": "Everything about one postcode: status (live or terminated), coordinates with positional quality, and every area it sits in (country, region, county, council, ward, parish, constituency, police force, NHS board, census areas), plus rural-urban class and deprivation decile. A terminated postcode answers 200 with status \"terminated\", the month it ended and the nearest live postcode in replaced_by.\n\nBilling: 1 lookup when found; not found is free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when found; not found is free"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/postcodes/:postcode",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "postcodes",
+                    ":postcode"
+                  ],
+                  "query": [
+                    {
+                      "key": "fields",
+                      "value": "location%2Clocal_authority%2Cward",
+                      "description": "Comma-separated top-level fields to return (postcode and status always come back). An unknown field answers 400 with the list.",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "postcode",
+                      "value": "SW1A 1AA",
+                      "description": "Any UK postcode, in any case, with or without the space."
+                    }
+                  ]
+                },
+                "description": "Everything about one postcode: status (live or terminated), coordinates with positional quality, and every area it sits in (country, region, county, council, ward, parish, constituency, police force, NHS board, census areas), plus rural-urban class and deprivation decile. A terminated postcode answers 200 with status \"terminated\", the month it ended and the nearest live postcode in replaced_by.\n\nBilling: 1 lookup when found; not found is free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when found; not found is free"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"postcode\": \"SW1A 1AA\",\n    \"status\": \"live\",\n    \"outcode\": \"SW1A\",\n    \"incode\": \"1AA\",\n    \"sector\": \"SW1A 1\",\n    \"district\": \"SW1A\",\n    \"area\": \"SW\",\n    \"introduced\": \"1980-01\",\n    \"terminated\": null,\n    \"replaced_by\": null,\n    \"user_type\": \"large\",\n    \"location\": {\n      \"latitude\": 51.50101,\n      \"longitude\": -0.141563,\n      \"easting\": 529090,\n      \"northing\": 179645,\n      \"positional_quality\": 1,\n      \"positional_quality_label\": \"Within the building closest to the postcode's centre\"\n    },\n    \"country\": {\n      \"code\": \"E92000001\",\n      \"name\": \"England\"\n    },\n    \"region\": {\n      \"code\": \"E12000007\",\n      \"name\": \"London\"\n    },\n    \"county\": null,\n    \"county_electoral_division\": null,\n    \"local_authority\": {\n      \"code\": \"E09000033\",\n      \"name\": \"Westminster\"\n    },\n    \"ward\": {\n      \"code\": \"E05013806\",\n      \"name\": \"St James's\"\n    },\n    \"parish\": {\n      \"code\": \"E43000236\",\n      \"name\": \"Westminster, unparished area\"\n    },\n    \"constituency\": {\n      \"code\": \"E14001172\",\n      \"name\": \"Cities of London and Westminster\"\n    },\n    \"police_force\": {\n      \"code\": \"E23000001\",\n      \"name\": \"Metropolitan Police\"\n    },\n    \"nhs_region\": {\n      \"code\": \"E40000003\",\n      \"name\": \"London\"\n    },\n    \"icb\": {\n      \"code\": \"E54000071\",\n      \"name\": \"NHS West and North London Integrated Care Board\"\n    },\n    \"sub_icb\": {\n      \"code\": \"E38000256\",\n      \"name\": \"NHS West and North London ICB - W2U3Z\"\n    },\n    \"national_park\": null,\n    \"built_up_area\": {\n      \"code\": \"E63012036\",\n      \"name\": \"City of Westminster\"\n    },\n    \"travel_to_work_area\": {\n      \"code\": \"E30000234\",\n      \"name\": \"London\"\n    },\n    \"lsoa\": {\n      \"code\": \"E01004736\",\n      \"name\": \"Westminster 018C\"\n    },\n    \"msoa\": {\n      \"code\": \"E02000977\",\n      \"name\": \"Westminster 018\"\n    },\n    \"output_area\": \"E00023938\",\n    \"rural_urban\": {\n      \"code\": \"UN1\",\n      \"name\": \"Urban: Nearer to a major town or city\",\n      \"urban\": true\n    },\n    \"area_classification\": \"3c2\",\n    \"deprivation\": {\n      \"index\": \"English Indices of Deprivation 2025\",\n      \"rank\": 24593,\n      \"of\": 33755,\n      \"decile\": 8\n    }\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Validate a postcode",
@@ -71,19 +133,75 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/postcodes/SW1A%201AA/validate",
+              "raw": "{{baseUrl}}/postcodes/:postcode/validate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "postcodes",
-                "SW1A%201AA",
+                ":postcode",
                 "validate"
               ],
-              "query": []
+              "query": [],
+              "variable": [
+                {
+                  "key": "postcode",
+                  "value": "SW1A 1AA",
+                  "description": "Any UK postcode, in any case, with or without the space."
+                }
+              ]
             },
-            "description": "Three answers in one: is the format valid, is it in the current edition (known), and is it live. Northern Ireland (BT) postcodes are checked by format only and come back with coverage \"not_covered\". New-build postcodes can take up to a quarter to reach the open data, so treat known: false as \"check again\", never as \"wrong\".\n\nBilling: 1 lookup when known; otherwise free. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when known; otherwise free"
-          }
+            "description": "Three answers in one: is the format valid, is it in the current edition (known), and is it live. Northern Ireland (BT) postcodes are checked by format only and come back with coverage \"not_covered\"; on a key with Address lookup they are checked against Royal Mail PAF instead and come back covered. New-build postcodes can take up to a quarter to reach the open data, so treat known: false as \"check again\", never as \"wrong\".\n\nBilling: 1 lookup when known; otherwise free (a BT postcode checked against PAF: 1 address credit when found). Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when known; otherwise free (a BT postcode checked against PAF: 1 address credit when found)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/postcodes/:postcode/validate",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "postcodes",
+                    ":postcode",
+                    "validate"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "postcode",
+                      "value": "SW1A 1AA",
+                      "description": "Any UK postcode, in any case, with or without the space."
+                    }
+                  ]
+                },
+                "description": "Three answers in one: is the format valid, is it in the current edition (known), and is it live. Northern Ireland (BT) postcodes are checked by format only and come back with coverage \"not_covered\"; on a key with Address lookup they are checked against Royal Mail PAF instead and come back covered. New-build postcodes can take up to a quarter to reach the open data, so treat known: false as \"check again\", never as \"wrong\".\n\nBilling: 1 lookup when known; otherwise free (a BT postcode checked against PAF: 1 address credit when found). Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when known; otherwise free (a BT postcode checked against PAF: 1 address credit when found)"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"input\": \"sw1a1aa\",\n    \"postcode\": \"SW1A 1AA\",\n    \"format_valid\": true,\n    \"known\": true,\n    \"status\": \"live\",\n    \"valid\": true,\n    \"coverage\": \"covered\",\n    \"country\": {\n      \"code\": \"E92000001\",\n      \"name\": \"England\"\n    },\n    \"replaced_by\": null\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Postcodes near a postcode",
@@ -101,20 +219,20 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/postcodes/SW1A%201AA/nearest?radius=500&limit=10",
+              "raw": "{{baseUrl}}/postcodes/:postcode/nearest",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "postcodes",
-                "SW1A%201AA",
+                ":postcode",
                 "nearest"
               ],
               "query": [
                 {
                   "key": "radius",
                   "value": "500",
-                  "description": "Search radius in metres (up to 2,000; default 500).",
+                  "description": "Search radius in metres (up to 20,000; default 500). Past 2,000 m a call returns up to 10 postcodes.",
                   "disabled": true
                 },
                 {
@@ -123,10 +241,79 @@
                   "description": "How many results (1 to 50, default 10).",
                   "disabled": true
                 }
+              ],
+              "variable": [
+                {
+                  "key": "postcode",
+                  "value": "SW1A 1AA",
+                  "description": "Any UK postcode, in any case, with or without the space."
+                }
               ]
             },
-            "description": "Live postcodes closest to this one, nearest first, with the distance in metres.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
-          }
+            "description": "Live postcodes closest to this one, nearest first, with the distance in metres. Channel Islands and Isle of Man postcodes have no coordinates in the official data and answer no_position.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/postcodes/:postcode/nearest",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "postcodes",
+                    ":postcode",
+                    "nearest"
+                  ],
+                  "query": [
+                    {
+                      "key": "radius",
+                      "value": "500",
+                      "description": "Search radius in metres (up to 20,000; default 500). Past 2,000 m a call returns up to 10 postcodes.",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "How many results (1 to 50, default 10).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "postcode",
+                      "value": "SW1A 1AA",
+                      "description": "Any UK postcode, in any case, with or without the space."
+                    }
+                  ]
+                },
+                "description": "Live postcodes closest to this one, nearest first, with the distance in metres. Channel Islands and Isle of Man postcodes have no coordinates in the official data and answer no_position.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"postcode\": \"SW1A 1BB\",\n      \"distance_m\": 359,\n      \"latitude\": 51.503831,\n      \"longitude\": -0.139099\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Postcodes near a point (reverse geocode)",
@@ -144,7 +331,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/postcodes?lat=51.501&lon=-0.1416&radius=500&limit=10",
+              "raw": "{{baseUrl}}/postcodes?lat=51.501&lon=-0.1416",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -167,7 +354,7 @@
                 {
                   "key": "radius",
                   "value": "500",
-                  "description": "Metres (up to 2,000; default 500).",
+                  "description": "Search radius in metres (up to 20,000; default 500). Past 2,000 m a call returns up to 10 postcodes.",
                   "disabled": true
                 },
                 {
@@ -176,10 +363,77 @@
                   "description": "How many results (1 to 50, default 10).",
                   "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Live postcodes nearest a latitude and longitude, nearest first.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when anything is found"
-          }
+            "description": "Live postcodes nearest a latitude and longitude, nearest first, out to 20 km for rural and island points.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when anything is found"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/postcodes?lat=51.501&lon=-0.1416",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "postcodes"
+                  ],
+                  "query": [
+                    {
+                      "key": "lat",
+                      "value": "51.501",
+                      "description": "Latitude (WGS84).",
+                      "disabled": false
+                    },
+                    {
+                      "key": "lon",
+                      "value": "-0.1416",
+                      "description": "Longitude (WGS84).",
+                      "disabled": false
+                    },
+                    {
+                      "key": "radius",
+                      "value": "500",
+                      "description": "Search radius in metres (up to 20,000; default 500). Past 2,000 m a call returns up to 10 postcodes.",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "How many results (1 to 50, default 10).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Live postcodes nearest a latitude and longitude, nearest first, out to 20 km for rural and island points.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when anything is found"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"postcode\": \"SW1A 1AA\",\n      \"distance_m\": 3,\n      \"latitude\": 51.50101,\n      \"longitude\": -0.141563\n    },\n    {\n      \"postcode\": \"SW1A 1BB\",\n      \"distance_m\": 359,\n      \"latitude\": 51.503831,\n      \"longitude\": -0.139099\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Bulk lookup (up to 100)",
@@ -201,7 +455,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/postcodes?fields=location%2Clocal_authority%2Cward",
+              "raw": "{{baseUrl}}/postcodes",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -212,12 +466,13 @@
                 {
                   "key": "fields",
                   "value": "location%2Clocal_authority%2Cward",
-                  "description": "Comma-separated top-level fields to return (postcode and status always come back).",
+                  "description": "Comma-separated top-level fields to return (postcode and status always come back). An unknown field answers 400 with the list.",
                   "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Look up to 100 postcodes in one call. Results come back in the order sent, each with the query, the record or null, and an error code when it wasn't found.\n\nBilling: 1 lookup per postcode found. Secret (server) keys only.\n\nBilling: 1 lookup per postcode found",
+            "description": "Look up to 100 postcodes in one call, from anywhere in the country. Results come back in the order sent, each with the query, the record or null, and an error code when it wasn't found.\n\nBilling: 1 lookup per postcode found. Secret (server) keys only.\n\nBilling: 1 lookup per postcode found",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"postcodes\": [\n    \"SW1A 1AA\",\n    \"M1 1AE\",\n    \"EH1 1YZ\"\n  ]\n}",
@@ -227,7 +482,68 @@
                 }
               }
             }
-          }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/postcodes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "postcodes"
+                  ],
+                  "query": [
+                    {
+                      "key": "fields",
+                      "value": "location%2Clocal_authority%2Cward",
+                      "description": "Comma-separated top-level fields to return (postcode and status always come back). An unknown field answers 400 with the list.",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Look up to 100 postcodes in one call, from anywhere in the country. Results come back in the order sent, each with the query, the record or null, and an error code when it wasn't found.\n\nBilling: 1 lookup per postcode found. Secret (server) keys only.\n\nBilling: 1 lookup per postcode found",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"postcodes\": [\n    \"SW1A 1AA\",\n    \"M1 1AE\",\n    \"EH1 1YZ\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"query\": \"SW1A 1AA\",\n      \"result\": {\n        \"postcode\": \"SW1A 1AA\",\n        \"status\": \"live\",\n        \"outcode\": \"SW1A\",\n        \"incode\": \"1AA\",\n        \"sector\": \"SW1A 1\",\n        \"district\": \"SW1A\",\n        \"area\": \"SW\",\n        \"introduced\": \"1980-01\",\n        \"terminated\": null,\n        \"replaced_by\": null,\n        \"user_type\": \"large\",\n        \"location\": {\n          \"latitude\": 51.50101,\n          \"longitude\": -0.141563,\n          \"easting\": 529090,\n          \"northing\": 179645,\n          \"positional_quality\": 1,\n          \"positional_quality_label\": \"Within the building closest to the postcode's centre\"\n        },\n        \"country\": {\n          \"code\": \"E92000001\",\n          \"name\": \"England\"\n        },\n        \"region\": {\n          \"code\": \"E12000007\",\n          \"name\": \"London\"\n        },\n        \"county\": null,\n        \"county_electoral_division\": null,\n        \"local_authority\": {\n          \"code\": \"E09000033\",\n          \"name\": \"Westminster\"\n        },\n        \"ward\": {\n          \"code\": \"E05013806\",\n          \"name\": \"St James's\"\n        },\n        \"parish\": {\n          \"code\": \"E43000236\",\n          \"name\": \"Westminster, unparished area\"\n        },\n        \"constituency\": {\n          \"code\": \"E14001172\",\n          \"name\": \"Cities of London and Westminster\"\n        },\n        \"police_force\": {\n          \"code\": \"E23000001\",\n          \"name\": \"Metropolitan Police\"\n        },\n        \"nhs_region\": {\n          \"code\": \"E40000003\",\n          \"name\": \"London\"\n        },\n        \"icb\": {\n          \"code\": \"E54000071\",\n          \"name\": \"NHS West and North London Integrated Care Board\"\n        },\n        \"sub_icb\": {\n          \"code\": \"E38000256\",\n          \"name\": \"NHS West and North London ICB - W2U3Z\"\n        },\n        \"national_park\": null,\n        \"built_up_area\": {\n          \"code\": \"E63012036\",\n          \"name\": \"City of Westminster\"\n        },\n        \"travel_to_work_area\": {\n          \"code\": \"E30000234\",\n          \"name\": \"London\"\n        },\n        \"lsoa\": {\n          \"code\": \"E01004736\",\n          \"name\": \"Westminster 018C\"\n        },\n        \"msoa\": {\n          \"code\": \"E02000977\",\n          \"name\": \"Westminster 018\"\n        },\n        \"output_area\": \"E00023938\",\n        \"rural_urban\": {\n          \"code\": \"UN1\",\n          \"name\": \"Urban: Nearer to a major town or city\",\n          \"urban\": true\n        },\n        \"area_classification\": \"3c2\",\n        \"deprivation\": {\n          \"index\": \"English Indices of Deprivation 2025\",\n          \"rank\": 24593,\n          \"of\": 33755,\n          \"decile\": 8\n        }\n      }\n    },\n    {\n      \"query\": \"SW1A 9ZZ\",\n      \"result\": null,\n      \"error\": \"postcode_not_found\"\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Bulk reverse geocode (up to 20)",
@@ -256,7 +572,8 @@
               "path": [
                 "reverse"
               ],
-              "query": []
+              "query": [],
+              "variable": []
             },
             "description": "Nearest postcodes for up to 20 points in one call.\n\nBilling: 1 lookup per point with a result. Secret (server) keys only.\n\nBilling: 1 lookup per point with a result",
             "body": {
@@ -268,7 +585,61 @@
                 }
               }
             }
-          }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "content-type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/reverse",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "reverse"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "description": "Nearest postcodes for up to 20 points in one call.\n\nBilling: 1 lookup per point with a result. Secret (server) keys only.\n\nBilling: 1 lookup per point with a result",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"points\": [\n    {\n      \"lat\": 51.5014,\n      \"lon\": -0.1419,\n      \"limit\": 1\n    },\n    {\n      \"lat\": 53.4808,\n      \"lon\": -2.2426,\n      \"limit\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"query\": {\n        \"latitude\": 51.5014,\n        \"longitude\": -0.1419\n      },\n      \"result\": [\n        {\n          \"postcode\": \"SW1A 1AA\",\n          \"distance_m\": 3,\n          \"latitude\": 51.50101,\n          \"longitude\": -0.141563\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Autocomplete a partial postcode",
@@ -286,7 +657,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/autocomplete?q=SW1A%201&limit=10",
+              "raw": "{{baseUrl}}/autocomplete?q=SW1A%201",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -306,10 +677,65 @@
                   "description": "How many results (1 to 20, default 10).",
                   "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free: keystrokes are never billed. Send at least 2 characters.\n\nBilling: Free (fair use). Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: Free (fair use)"
-          }
+            "description": "Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free: keystrokes are never billed. Send at least 2 characters.\n\nBilling: Free (fair use). Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: Free (fair use)"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/autocomplete?q=SW1A%201",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "autocomplete"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "SW1A%201",
+                      "description": "What has been typed so far.",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "How many results (1 to 20, default 10).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free: keystrokes are never billed. Send at least 2 characters.\n\nBilling: Free (fair use). Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: Free (fair use)"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"postcode\",\n      \"postcode\": \"SW1A 1AA\"\n    },\n    {\n      \"type\": \"postcode\",\n      \"postcode\": \"SW1A 1AB\"\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Distance between two postcodes",
@@ -347,10 +773,65 @@
                   "description": "Second postcode.",
                   "disabled": false
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Straight-line distance in kilometres and miles, and the compass bearing from the first to the second.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
-          }
+            "description": "Straight-line distance in kilometres and miles, and the compass bearing from the first to the second.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/distance?from=SW1A%201AA&to=EH1%201YZ",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "distance"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "SW1A%201AA",
+                      "description": "First postcode.",
+                      "disabled": false
+                    },
+                    {
+                      "key": "to",
+                      "value": "EH1%201YZ",
+                      "description": "Second postcode.",
+                      "disabled": false
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Straight-line distance in kilometres and miles, and the compass bearing from the first to the second.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"from\": {\n      \"postcode\": \"SW1A 1AA\",\n      \"latitude\": 51.50101,\n      \"longitude\": -0.141563,\n      \"easting\": 529090,\n      \"northing\": 179645,\n      \"positional_quality\": 1,\n      \"positional_quality_label\": \"Within the building closest to the postcode's centre\"\n    },\n    \"to\": {\n      \"postcode\": \"EH1 1YZ\",\n      \"latitude\": 55.950328,\n      \"longitude\": -3.193018,\n      \"easting\": 325597,\n      \"northing\": 673676,\n      \"positional_quality\": 1,\n      \"positional_quality_label\": \"Within the building closest to the postcode's centre\"\n    },\n    \"km\": 533.79,\n    \"miles\": 331.682,\n    \"bearing_deg\": 339,\n    \"direction\": \"north\",\n    \"method\": \"great-circle (haversine)\"\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         }
       ]
     },
@@ -373,18 +854,73 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/outcodes/SW1A",
+              "raw": "{{baseUrl}}/outcodes/:outcode",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "outcodes",
-                "SW1A"
+                ":outcode"
               ],
-              "query": []
+              "query": [],
+              "variable": [
+                {
+                  "key": "outcode",
+                  "value": "SW1A",
+                  "description": "Outward code."
+                }
+              ]
             },
-            "description": "One district (the outward code, e.g. SW1A): how many live and terminated postcodes, its sectors, centre, councils, wards, constituencies and places.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
-          }
+            "description": "One district (the outward code, e.g. SW1A): how many live and terminated postcodes, its sectors, centre, councils, wards, constituencies and places.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/outcodes/:outcode",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "outcodes",
+                    ":outcode"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "outcode",
+                      "value": "SW1A",
+                      "description": "Outward code."
+                    }
+                  ]
+                },
+                "description": "One district (the outward code, e.g. SW1A): how many live and terminated postcodes, its sectors, centre, councils, wards, constituencies and places.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"district\": \"SW1A\",\n    \"area\": \"SW\",\n    \"area_name\": \"South West London\",\n    \"live\": 145,\n    \"terminated\": 210,\n    \"large_user\": 64,\n    \"sectors\": [\n      {\n        \"sector\": \"SW1A 0\",\n        \"live\": 3,\n        \"terminated\": 10\n      },\n      {\n        \"sector\": \"SW1A 1\",\n        \"live\": 67,\n        \"terminated\": 121\n      },\n      {\n        \"sector\": \"SW1A 2\",\n        \"live\": 75,\n        \"terminated\": 79\n      }\n    ],\n    \"centre\": {\n      \"latitude\": 51.50455,\n      \"longitude\": -0.13223\n    },\n    \"country\": {\n      \"code\": \"E92000001\",\n      \"name\": \"England\"\n    },\n    \"regions\": [\n      {\n        \"code\": \"E12000007\",\n        \"name\": \"London\",\n        \"postcodes\": 145,\n        \"share\": 100\n      }\n    ],\n    \"counties\": [],\n    \"local_authorities\": [\n      {\n        \"code\": \"E09000033\",\n        \"name\": \"Westminster\",\n        \"postcodes\": 143,\n        \"share\": 99\n      }\n    ],\n    \"wards\": [\n      {\n        \"code\": \"E05013806\",\n        \"name\": \"St James's\",\n        \"postcodes\": 143,\n        \"share\": 99\n      }\n    ],\n    \"constituencies\": [\n      {\n        \"code\": \"E14001172\",\n        \"name\": \"Cities of London and Westminster\",\n        \"postcodes\": 143,\n        \"share\": 99\n      }\n    ],\n    \"police_forces\": [\n      {\n        \"code\": \"E23000001\",\n        \"name\": \"Metropolitan Police\",\n        \"postcodes\": 145,\n        \"share\": 100\n      }\n    ],\n    \"icbs\": [\n      {\n        \"code\": \"E54000071\",\n        \"name\": \"NHS West and North London Integrated Care Board\",\n        \"postcodes\": 143,\n        \"share\": 99\n      }\n    ],\n    \"national_parks\": [\n      {\n        \"code\": \"E65000001\",\n        \"name\": \"England (non-National Park)\",\n        \"postcodes\": 145,\n        \"share\": 100\n      }\n    ],\n    \"built_up_areas\": [\n      {\n        \"code\": \"E63012036\",\n        \"name\": \"City of Westminster\",\n        \"postcodes\": 142,\n        \"share\": 98\n      }\n    ],\n    \"parishes\": [\n      {\n        \"code\": \"E43000236\",\n        \"name\": \"Westminster, unparished area\",\n        \"postcodes\": 143,\n        \"share\": 99\n      }\n    ],\n    \"urban_share\": 100,\n    \"deprivation\": {\n      \"index\": \"English Indices of Deprivation 2025\",\n      \"deciles\": [\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        29,\n        115,\n        1,\n        0\n      ]\n    },\n    \"places\": [\n      {\n        \"name\": \"City of Westminster\",\n        \"type\": \"City\"\n      }\n    ],\n    \"neighbours\": [\n      \"SW1Y\",\n      \"SW1H\",\n      \"WC2N\",\n      \"SW1E\",\n      \"W1J\",\n      \"W1D\",\n      \"W1S\",\n      \"WC2E\"\n    ],\n    \"newest\": [\n      {\n        \"postcode\": \"SW1A 1NF\",\n        \"introduced\": \"2026-06\"\n      }\n    ],\n    \"oldest_introduced\": \"1980-01\"\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Every postcode in a district",
@@ -402,20 +938,20 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/outcodes/SW1A/postcodes?after=SW1A%201AA&limit=100",
+              "raw": "{{baseUrl}}/outcodes/:outcode/postcodes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "outcodes",
-                "SW1A",
+                ":outcode",
                 "postcodes"
               ],
               "query": [
                 {
-                  "key": "after",
-                  "value": "SW1A%201AA",
-                  "description": "Cursor: the last postcode of the previous page.",
+                  "key": "cursor",
+                  "value": "U1cxQTFBQQ",
+                  "description": "meta.next_cursor from the previous page.",
                   "disabled": true
                 },
                 {
@@ -424,10 +960,79 @@
                   "description": "How many results (1 to 500, default 100).",
                   "disabled": true
                 }
+              ],
+              "variable": [
+                {
+                  "key": "outcode",
+                  "value": "SW1A",
+                  "description": "Outward code."
+                }
               ]
             },
-            "description": "The district's live postcodes with coordinates, in order, a page at a time. Pass the last postcode you received as after= to get the next page.\n\nBilling: 1 lookup per page. Secret (server) keys only.\n\nBilling: 1 lookup per page"
-          }
+            "description": "The district's live postcodes with coordinates, in order, a page at a time. Pass meta.next_cursor as cursor= to get the next page (meta.next is the whole next URL).\n\nBilling: 1 lookup per page. Secret (server) keys only.\n\nBilling: 1 lookup per page"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/outcodes/:outcode/postcodes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "outcodes",
+                    ":outcode",
+                    "postcodes"
+                  ],
+                  "query": [
+                    {
+                      "key": "cursor",
+                      "value": "U1cxQTFBQQ",
+                      "description": "meta.next_cursor from the previous page.",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "100",
+                      "description": "How many results (1 to 500, default 100).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "outcode",
+                      "value": "SW1A",
+                      "description": "Outward code."
+                    }
+                  ]
+                },
+                "description": "The district's live postcodes with coordinates, in order, a page at a time. Pass meta.next_cursor as cursor= to get the next page (meta.next is the whole next URL).\n\nBilling: 1 lookup per page. Secret (server) keys only.\n\nBilling: 1 lookup per page"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"postcode\": \"SW1A 0AA\",\n      \"latitude\": 51.499842,\n      \"longitude\": -0.124638\n    },\n    {\n      \"postcode\": \"SW1A 1AA\",\n      \"latitude\": 51.50101,\n      \"longitude\": -0.141563\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "A postcode sector",
@@ -445,18 +1050,73 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/sectors/SW1A%201",
+              "raw": "{{baseUrl}}/sectors/:sector",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "sectors",
-                "SW1A%201"
+                ":sector"
               ],
-              "query": []
+              "query": [],
+              "variable": [
+                {
+                  "key": "sector",
+                  "value": "SW1A 1",
+                  "description": "Sector, e.g. \"SW1A 1\"."
+                }
+              ]
             },
-            "description": "One sector (e.g. SW1A 1): its live postcodes with coordinates, centre, and the councils and wards it covers.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
-          }
+            "description": "One sector (e.g. SW1A 1): its live postcodes with coordinates, centre, and the councils and wards it covers.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sectors/:sector",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "sectors",
+                    ":sector"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "sector",
+                      "value": "SW1A 1",
+                      "description": "Sector, e.g. \"SW1A 1\"."
+                    }
+                  ]
+                },
+                "description": "One sector (e.g. SW1A 1): its live postcodes with coordinates, centre, and the councils and wards it covers.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"sector\": \"SW1A 1\",\n    \"district\": \"SW1A\",\n    \"live\": 67,\n    \"centre\": {\n      \"latitude\": 51.50501,\n      \"longitude\": -0.1393\n    },\n    \"local_authorities\": [\n      {\n        \"code\": \"E09000033\",\n        \"name\": \"Westminster\",\n        \"postcodes\": 65\n      },\n      {\n        \"code\": \"E09000032\",\n        \"name\": \"Wandsworth\",\n        \"postcodes\": 2\n      }\n    ],\n    \"wards\": [\n      {\n        \"code\": \"E05013806\",\n        \"name\": \"St James's\",\n        \"postcodes\": 65\n      },\n      {\n        \"code\": \"E05014015\",\n        \"name\": \"Nine Elms\",\n        \"postcodes\": 2\n      }\n    ],\n    \"constituencies\": [\n      {\n        \"code\": \"E14001172\",\n        \"name\": \"Cities of London and Westminster\",\n        \"postcodes\": 65\n      },\n      {\n        \"code\": \"E14001081\",\n        \"name\": \"Battersea\",\n        \"postcodes\": 2\n      }\n    ],\n    \"parishes\": [\n      {\n        \"code\": \"E43000236\",\n        \"name\": \"Westminster, unparished area\",\n        \"postcodes\": 65\n      },\n      {\n        \"code\": \"E43000222\",\n        \"name\": \"Wandsworth, unparished area\",\n        \"postcodes\": 2\n      }\n    ],\n    \"postcodes\": [\n      {\n        \"postcode\": \"SW1A 1AA\",\n        \"latitude\": 51.50101,\n        \"longitude\": -0.141563,\n        \"user_type\": \"large\"\n      },\n      {\n        \"postcode\": \"SW1A 1AB\",\n        \"latitude\": 51.505073,\n        \"longitude\": -0.137478,\n        \"user_type\": \"small\"\n      }\n    ]\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "A postcode area",
@@ -474,18 +1134,73 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/areas/SW",
+              "raw": "{{baseUrl}}/areas/:area",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "areas",
-                "SW"
+                ":area"
               ],
-              "query": []
+              "query": [],
+              "variable": [
+                {
+                  "key": "area",
+                  "value": "SW",
+                  "description": "Area letters."
+                }
+              ]
             },
-            "description": "One postcode area (the letters, e.g. SW): its name, counts and every district in it.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup"
-          }
+            "description": "One postcode area (the letters, e.g. SW): its name, counts and every district in it.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/areas/:area",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "areas",
+                    ":area"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "area",
+                      "value": "SW",
+                      "description": "Area letters."
+                    }
+                  ]
+                },
+                "description": "One postcode area (the letters, e.g. SW): its name, counts and every district in it.\n\nBilling: 1 lookup. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"area\": \"SW\",\n    \"name\": \"South West London\",\n    \"live\": 20109,\n    \"terminated\": 17448,\n    \"districts\": [\n      {\n        \"district\": \"SW1A\",\n        \"live\": 145,\n        \"terminated\": 210,\n        \"local_authority\": \"Westminster\"\n      }\n    ]\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         }
       ]
     },
@@ -508,7 +1223,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/places?q=Chelsea&limit=10",
+              "raw": "{{baseUrl}}/places?q=Chelsea",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -528,10 +1243,65 @@
                   "description": "How many results (1 to 20, default 10).",
                   "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Cities, towns, villages and neighbourhoods by name (OS Open Names), each with its postcode district and coordinates.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per IP).\n\nBilling: 1 lookup when anything is found"
-          }
+            "description": "Cities, towns, villages and neighbourhoods by name (OS Open Names), each with its postcode district and coordinates. Accents are optional: Aber-Giar finds Aber-Giâr.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when anything is found"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/places?q=Chelsea",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "places"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "Chelsea",
+                      "description": "Place name or its start.",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "How many results (1 to 20, default 10).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Cities, towns, villages and neighbourhoods by name (OS Open Names), each with its postcode district and coordinates. Accents are optional: Aber-Giar finds Aber-Giâr.\n\nBilling: 1 lookup when anything is found. Works with publishable (browser) keys. Can be tried without a key (rate-limited per network).\n\nBilling: 1 lookup when anything is found"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"name\": \"Chelsea\",\n      \"alternative_name\": null,\n      \"type\": \"Suburban Area\",\n      \"district\": \"SW3\",\n      \"latitude\": 51.4878,\n      \"longitude\": -0.16788,\n      \"local_authority\": \"Kensington and Chelsea\",\n      \"county\": \"Greater London\"\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         }
       ]
     },
@@ -561,10 +1331,52 @@
               "path": [
                 "usage"
               ],
-              "query": []
+              "query": [],
+              "variable": []
             },
             "description": "Your plan, this period's allowance, lookups used, credits and when the allowance resets.\n\nBilling: Free. Secret (server) keys only.\n\nBilling: Free"
-          }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/usage",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usage"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "description": "Your plan, this period's allowance, lookups used, credits and when the allowance resets.\n\nBilling: Free. Secret (server) keys only.\n\nBilling: Free"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"plan\": \"free\",\n    \"plan_name\": \"Free\",\n    \"period_start\": \"2026-11-01\",\n    \"resets\": \"2026-12-01T00:00:00.000Z\",\n    \"allowance\": 10000,\n    \"used\": 412,\n    \"remaining\": 9588,\n    \"credits\": 0\n  },\n  \"meta\": {\n    \"edition\": \"2026-08\",\n    \"next_edition\": \"2026-11\",\n    \"next_edition_expected\": {\n      \"from\": \"2026-12-01\",\n      \"to\": \"2026-12-31\"\n    },\n    \"coverage\": \"Great Britain, the Channel Islands and the Isle of Man\",\n    \"licence\": \"OGL-UK-3.0\",\n    \"attribution\": [\n      \"Contains OS data © Crown copyright and database right 2026\",\n      \"Contains Royal Mail data © Royal Mail copyright and database right 2026\",\n      \"Source: Office for National Statistics licensed under the Open Government Licence v.3.0\"\n    ],\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         }
       ]
     },
@@ -587,7 +1399,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/addresses?postcode=SW1A%201AA",
+              "raw": "{{baseUrl}}/addresses?postcode=AB10%201AA",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -597,14 +1409,75 @@
               "query": [
                 {
                   "key": "postcode",
-                  "value": "SW1A%201AA",
-                  "description": "Postcode.",
+                  "value": "AB10%201AA",
+                  "description": "A UK postcode, Northern Ireland included.",
                   "disabled": false
+                },
+                {
+                  "key": "cursor",
+                  "value": "",
+                  "description": "meta.next_cursor from the previous page.",
+                  "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Every Royal Mail PAF address at a postcode, with UDPRN, line_1 to line_3, post_town and organisation. In early access: join the list at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address lookup per postcode (early access). Works with publishable (browser) keys.\n\nBilling: 1 address lookup per postcode (early access)\n\nStatus: preview"
-          }
+            "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/addresses?postcode=AB10%201AA",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "addresses"
+                  ],
+                  "query": [
+                    {
+                      "key": "postcode",
+                      "value": "AB10%201AA",
+                      "description": "A UK postcode, Northern Ireland included.",
+                      "disabled": false
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "",
+                      "description": "meta.next_cursor from the previous page.",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"udprn\": \"90000001\",\n      \"umprn\": null,\n      \"uprn\": null,\n      \"line_1\": \"1 Lime Tree Avenue\",\n      \"line_2\": \"Clifton\",\n      \"line_3\": \"\",\n      \"post_town\": \"MAPLEBURY\",\n      \"postcode\": \"AB10 1AA\",\n      \"organisation_name\": \"\",\n      \"department_name\": \"\",\n      \"sub_building_name\": \"\",\n      \"building_name\": \"\",\n      \"building_number\": \"1\",\n      \"dependant_thoroughfare\": \"\",\n      \"thoroughfare\": \"Lime Tree Avenue\",\n      \"double_dependant_locality\": \"\",\n      \"dependant_locality\": \"Clifton\",\n      \"po_box\": \"\",\n      \"postcode_type\": \"S\",\n      \"delivery_point_suffix\": \"1A\",\n      \"su_organisation_indicator\": false,\n      \"households\": 1,\n      \"postal_county\": \"Mapleshire\",\n      \"traditional_county\": \"Old Mapleshire\",\n      \"administrative_county\": \"Maple Council\",\n      \"welsh\": null\n    },\n    {\n      \"udprn\": \"90000002\",\n      \"umprn\": null,\n      \"uprn\": null,\n      \"line_1\": \"2 Lime Tree Avenue\",\n      \"line_2\": \"Clifton\",\n      \"line_3\": \"\",\n      \"post_town\": \"MAPLEBURY\",\n      \"postcode\": \"AB10 1AA\",\n      \"organisation_name\": \"\",\n      \"department_name\": \"\",\n      \"sub_building_name\": \"\",\n      \"building_name\": \"\",\n      \"building_number\": \"2\",\n      \"dependant_thoroughfare\": \"\",\n      \"thoroughfare\": \"Lime Tree Avenue\",\n      \"double_dependant_locality\": \"\",\n      \"dependant_locality\": \"Clifton\",\n      \"po_box\": \"\",\n      \"postcode_type\": \"S\",\n      \"delivery_point_suffix\": \"1B\",\n      \"su_organisation_indicator\": false,\n      \"households\": 1,\n      \"postal_county\": \"Mapleshire\",\n      \"traditional_county\": \"Old Mapleshire\",\n      \"administrative_county\": \"Maple Council\",\n      \"welsh\": null\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
           "name": "Address autocomplete (early access)",
@@ -622,7 +1495,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/addresses/suggest?q=10%20Downing",
+              "raw": "{{baseUrl}}/addresses/suggest?q=2%20high%20street%20porthmore",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -633,17 +1506,91 @@
               "query": [
                 {
                   "key": "q",
-                  "value": "10%20Downing",
-                  "description": "What has been typed.",
+                  "value": "2%20high%20street%20porthmore",
+                  "description": "What has been typed (3 characters or more; optional with container).",
                   "disabled": false
+                },
+                {
+                  "key": "container",
+                  "value": "",
+                  "description": "A container suggestion's id: list what it holds.",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many suggestions (1 to 100, default 10).",
+                  "disabled": true
                 }
-              ]
+              ],
+              "variable": []
             },
-            "description": "Suggestions as the customer types; suggestions are always free, only the address you resolve is billed.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
-          }
+            "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/addresses/suggest?q=2%20high%20street%20porthmore",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "addresses",
+                    "suggest"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "2%20high%20street%20porthmore",
+                      "description": "What has been typed (3 characters or more; optional with container).",
+                      "disabled": false
+                    },
+                    {
+                      "key": "container",
+                      "value": "",
+                      "description": "A container suggestion's id: list what it holds.",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "How many suggestions (1 to 100, default 10).",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": []
+                },
+                "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"kind\": \"address\",\n      \"id\": \"YR9UUjI0QUEfOTAwMDAwNTYf\",\n      \"suggestion\": \"2 High Street, PORTHMORE, TR2 4AA\",\n      \"udprn\": \"90000056\",\n      \"umprn\": null,\n      \"postcode\": \"TR2 4AA\"\n    },\n    {\n      \"kind\": \"container\",\n      \"type\": \"postcode\",\n      \"id\": \"cB9BQjEwMUFB\",\n      \"suggestion\": \"AB10 1AA\",\n      \"count\": 17,\n      \"postcode\": \"AB10 1AA\"\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         },
         {
-          "name": "Resolve one address (early access)",
+          "name": "Resolve a suggestion (early access)",
           "request": {
             "method": "GET",
             "header": [
@@ -658,18 +1605,159 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/addresses/23747771",
+              "raw": "{{baseUrl}}/addresses/retrieve/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "addresses",
-                "23747771"
+                "retrieve",
+                ":id"
               ],
-              "query": []
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "YR9BQjEwMUFBHzkwMDAwMDAxHw",
+                  "description": "The id of a suggestion of kind \"address\"."
+                }
+              ]
             },
-            "description": "The full PAF address for a UDPRN from a suggestion.\n\nBilling: 1 address lookup. Works with publishable (browser) keys.\n\nBilling: 1 address lookup\n\nStatus: preview"
-          }
+            "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/addresses/retrieve/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "addresses",
+                    "retrieve",
+                    ":id"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "YR9BQjEwMUFBHzkwMDAwMDAxHw",
+                      "description": "The id of a suggestion of kind \"address\"."
+                    }
+                  ]
+                },
+                "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"udprn\": \"90000001\",\n    \"umprn\": null,\n    \"uprn\": null,\n    \"line_1\": \"1 Lime Tree Avenue\",\n    \"line_2\": \"Clifton\",\n    \"line_3\": \"\",\n    \"post_town\": \"MAPLEBURY\",\n    \"postcode\": \"AB10 1AA\",\n    \"organisation_name\": \"\",\n    \"department_name\": \"\",\n    \"sub_building_name\": \"\",\n    \"building_name\": \"\",\n    \"building_number\": \"1\",\n    \"dependant_thoroughfare\": \"\",\n    \"thoroughfare\": \"Lime Tree Avenue\",\n    \"double_dependant_locality\": \"\",\n    \"dependant_locality\": \"Clifton\",\n    \"po_box\": \"\",\n    \"postcode_type\": \"S\",\n    \"delivery_point_suffix\": \"1A\",\n    \"su_organisation_indicator\": false,\n    \"households\": 1,\n    \"postal_county\": \"Mapleshire\",\n    \"traditional_county\": \"Old Mapleshire\",\n    \"administrative_county\": \"Maple Council\",\n    \"welsh\": null\n  },\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "One address by UDPRN (early access)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+              },
+              {
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/addresses/:udprn",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addresses",
+                ":udprn"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "udprn",
+                  "value": "90000001",
+                  "description": "Royal Mail's Unique Delivery Point Reference Number (up to 8 digits)."
+                }
+              ]
+            },
+            "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-api-key",
+                    "value": "{{apiKey}}",
+                    "description": "Optional on keyless endpoints. cp_live_ (secret) or cp_pub_ (publishable)."
+                  },
+                  {
+                    "key": "accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/addresses/:udprn",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "addresses",
+                    ":udprn"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "key": "udprn",
+                      "value": "90000001",
+                      "description": "Royal Mail's Unique Delivery Point Reference Number (up to 8 digits)."
+                    }
+                  ]
+                },
+                "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"udprn\": \"90000001\",\n    \"umprn\": null,\n    \"uprn\": null,\n    \"line_1\": \"1 Lime Tree Avenue\",\n    \"line_2\": \"Clifton\",\n    \"line_3\": \"\",\n    \"post_town\": \"MAPLEBURY\",\n    \"postcode\": \"AB10 1AA\",\n    \"organisation_name\": \"\",\n    \"department_name\": \"\",\n    \"sub_building_name\": \"\",\n    \"building_name\": \"\",\n    \"building_number\": \"1\",\n    \"dependant_thoroughfare\": \"\",\n    \"thoroughfare\": \"Lime Tree Avenue\",\n    \"double_dependant_locality\": \"\",\n    \"dependant_locality\": \"Clifton\",\n    \"po_box\": \"\",\n    \"postcode_type\": \"S\",\n    \"delivery_point_suffix\": \"1A\",\n    \"su_organisation_indicator\": false,\n    \"households\": 1,\n    \"postal_county\": \"Mapleshire\",\n    \"traditional_county\": \"Old Mapleshire\",\n    \"administrative_county\": \"Maple Council\",\n    \"welsh\": null\n  },\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
         }
       ]
     }
