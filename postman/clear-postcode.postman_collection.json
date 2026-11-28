@@ -1422,7 +1422,7 @@
               ],
               "variable": []
             },
-            "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
+            "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
           },
           "response": [
             {
@@ -1464,7 +1464,7 @@
                   ],
                   "variable": []
                 },
-                "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
+                "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.\n\nBilling: 1 address credit per page found; not found is free\n\nStatus: preview"
               },
               "status": "OK",
               "code": 200,
@@ -1525,7 +1525,7 @@
               ],
               "variable": []
             },
-            "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
+            "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Each line carries only what the picker shows and an opaque id. A business gets a day's suggestions in proportion to the addresses it holds (a call that lists many lines counts as several), far more than its checkouts use. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
           },
           "response": [
             {
@@ -1574,7 +1574,7 @@
                   ],
                   "variable": []
                 },
-                "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
+                "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Each line carries only what the picker shows and an opaque id. A business gets a day's suggestions in proportion to the addresses it holds (a call that lists many lines counts as several), far more than its checkouts use. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.\n\nBilling: Free\n\nStatus: preview"
               },
               "status": "OK",
               "code": 200,
@@ -1584,7 +1584,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"kind\": \"address\",\n      \"id\": \"YR9UUjI0QUEfOTAwMDAwNTYf\",\n      \"suggestion\": \"2 High Street, PORTHMORE, TR2 4AA\",\n      \"udprn\": \"90000056\",\n      \"umprn\": null,\n      \"postcode\": \"TR2 4AA\"\n    },\n    {\n      \"kind\": \"container\",\n      \"type\": \"postcode\",\n      \"id\": \"cB9BQjEwMUFB\",\n      \"suggestion\": \"AB10 1AA\",\n      \"count\": 17,\n      \"postcode\": \"AB10 1AA\"\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"kind\": \"address\",\n      \"id\": \"YR9UUjI0QUEfOTAwMDAwNTYf\",\n      \"suggestion\": \"2 High Street, PORTHMORE, TR2 4AA\"\n    },\n    {\n      \"kind\": \"container\",\n      \"type\": \"postcode\",\n      \"id\": \"cB9BQjEwMUFB\",\n      \"suggestion\": \"AB10 1AA\",\n      \"count\": 17\n    }\n  ],\n  \"meta\": {\n    \"edition\": \"2026-12\",\n    \"coverage\": \"Every UK address that receives post, Northern Ireland included\",\n    \"source\": \"Royal Mail PAF\",\n    \"acknowledgement\": \"Address data from Royal Mail's Postcode Address File (PAF®). Royal Mail owns the intellectual property rights in PAF® data and the PAF® brand.\",\n    \"terms\": \"https://clearpostcode.co.uk/address-lookup/terms\",\n    \"docs\": \"https://clearpostcode.co.uk/developers/docs\"\n  }\n}",
               "_postman_previewlanguage": "json"
             }
           ]
@@ -1623,7 +1623,7 @@
                 }
               ]
             },
-            "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+            "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
           },
           "response": [
             {
@@ -1660,7 +1660,7 @@
                     }
                   ]
                 },
-                "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+                "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
               },
               "status": "OK",
               "code": 200,
@@ -1708,7 +1708,7 @@
                 }
               ]
             },
-            "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+            "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
           },
           "response": [
             {
@@ -1744,7 +1744,7 @@
                     }
                   ]
                 },
-                "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
+                "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.\n\nBilling: 1 address credit when found\n\nStatus: preview"
               },
               "status": "OK",
               "code": 200,
