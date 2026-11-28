@@ -191,16 +191,25 @@ ${ops.map((o) => `  /** ${o.summary} */\n  ${o.id}: { method: ${JSON.stringify(o
 } as const satisfies Record<OperationId, { method: "GET" | "POST"; path: string; query: readonly string[] }>;
 `;
 
+const pyBody = [...named.keys()].map((n) => pyTypedDict(n, named.get(n))).join("\n\n\n");
+const pyNames = ["BASE_URL", "OPERATIONS", "PostcodeField", "ProblemCode", ...named.keys(), ...order.filter((n) => !named.has(n))];
+// ruff's isort-style order: SCREAMING_CASE, then CamelCase.
+const pyAll = pyNames.sort((a, b) => Number(a !== a.toUpperCase()) - Number(b !== b.toUpperCase()) || (a < b ? -1 : 1));
 const pyOut = `"""${header}"""
 
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import ${pyBody.includes("Any]") ? "Any, " : ""}Literal, NotRequired, TypedDict
 
 BASE_URL = ${JSON.stringify(doc.servers[0].url)}
 
 
-${[...named.keys()].map((n) => pyTypedDict(n, named.get(n))).join("\n\n\n")}
+${pyBody}
 
 ${order.filter((n) => !named.has(n)).map((n) => `\n${n} = ${py(SCHEMAS[n])}`).join("\n")}
+
+PostcodeField = Literal[
+${Object.keys(SCHEMAS.Postcode.properties).filter((k) => !SCHEMAS.Postcode.required.includes(k)).map((k) => `    ${JSON.stringify(k)},`).join("\n")}
+]
+"""A field a lookup may ask for with \`fields\` (postcode and status always come back)."""
 
 ProblemCode = Literal[
 ${problemList.map((p) => `    ${JSON.stringify(p)},`).join("\n")}
@@ -213,7 +222,7 @@ ${ops.map((o) => `    ${JSON.stringify(o.id)}: (${JSON.stringify(o.method)}, ${J
 """Each operation's method, path and the query parameters it takes."""
 
 __all__ = [
-${["BASE_URL", "OPERATIONS", "ProblemCode", ...named.keys(), ...order.filter((n) => !named.has(n))].sort().map((n) => `    ${JSON.stringify(n)},`).join("\n")}
+${pyAll.map((n) => `    ${JSON.stringify(n)},`).join("\n")}
 ]
 `;
 

@@ -1,29 +1,34 @@
 [project]
 name = "clearpostcode"
-version = "1.0.0"
-description = "UK postcode data API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. Standard library only."
+version = "2.0.0"
+description = "UK postcode lookup API client: validate, autocomplete, nearest, reverse geocode, distance, council, ward and constituency, plus Royal Mail address lookup. Typed, sync and async, retries built in."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "ClearPostcode", email = "hello@clearpostcode.co.uk" }]
-keywords = ["postcode", "uk postcode", "postcode lookup", "postcode api", "postcode validation", "postcode autocomplete", "reverse geocode", "geocoding", "council", "ward", "constituency"]
+keywords = ["postcode", "uk postcode", "postcode lookup", "postcode api", "postcode validation", "postcode autocomplete", "address lookup", "royal mail paf", "reverse geocode", "geocoding", "council", "ward", "constituency"]
 classifiers = [
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Framework :: AsyncIO",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
   "Topic :: Software Development :: Libraries",
   "Typing :: Typed",
 ]
-dependencies = []
+dependencies = ["httpx>=0.27,<1"]
 
 [project.urls]
 Homepage = "https://clearpostcode.co.uk/developers"
 Documentation = "https://clearpostcode.co.uk/developers/docs"
 Repository = "https://github.com/clearpostcode/postcode-api"
+Changelog = "https://github.com/clearpostcode/postcode-api/blob/main/CHANGELOG.md"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.8", "mypy>=1.13"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.8", "mypy>=1.13"]
 
 [build-system]
 requires = ["hatchling"]
@@ -34,16 +39,22 @@ packages = ["src/clearpostcode"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py311"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+per-file-ignores = { "src/clearpostcode/_generated.py" = ["E501"] }
 
 [tool.mypy]
 strict = true
-python_version = "3.12"
-files = ["src", "tests", "smoke.py"]
+python_version = "3.11"
+files = ["src", "tests", "scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "README.md", "LICENSE", "pyproject.toml"]
