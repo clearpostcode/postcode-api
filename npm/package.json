@@ -1,24 +1,46 @@
 {
   "name": "clearpostcode",
-  "version": "1.0.0",
-  "description": "UK postcode data API client: postcode lookup, validation, autocomplete, nearest, reverse geocoding, distance, council, ward and constituency. No dependencies.",
+  "version": "2.0.0",
+  "description": "UK postcode lookup API client: validate, autocomplete, nearest, reverse geocode, distance, council, ward and constituency, plus Royal Mail address lookup. Typed, retries built in, no dependencies.",
   "type": "module",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    }
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./dist/esm/browser.d.ts",
+        "default": "./dist/esm/browser.js"
+      },
+      "require": {
+        "types": "./dist/cjs/browser.d.ts",
+        "default": "./dist/cjs/browser.js"
+      }
+    },
+    "./package.json": "./package.json"
   },
+  "sideEffects": false,
   "files": [
-    "index.js",
-    "index.d.ts",
+    "dist",
     "README.md"
   ],
   "scripts": {
-    "test": "node --test test.mjs",
-    "smoke": "node smoke.mjs"
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node ../scripts/generate.mjs --check && tsc -p tsconfig.json && node --test test/*.test.ts",
+    "check:package": "npm run build && npx --yes publint@0.3 && npx --yes @arethetypeswrong/cli@0.18 --pack . --profile node16",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "prepublishOnly": "npm test && npm run build"
   },
   "keywords": [
     "postcode",
@@ -27,6 +49,9 @@
     "postcode api",
     "postcode validation",
     "postcode autocomplete",
+    "address lookup",
+    "address autocomplete",
+    "royal mail paf",
     "reverse geocode",
     "geocoding",
     "council",
@@ -38,7 +63,7 @@
   "license": "MIT",
   "author": "ClearPostcode <hello@clearpostcode.co.uk>",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
@@ -46,7 +71,12 @@
     "directory": "npm"
   },
   "bugs": {
-    "url": "https://clearpostcode.co.uk/contact",
+    "url": "https://github.com/clearpostcode/postcode-api/issues",
     "email": "hello@clearpostcode.co.uk"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.4",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
   }
 }
