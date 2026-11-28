@@ -330,33 +330,128 @@ clear_postcode_classic_checkout(
 cpt_check( 'checkout checks switch off in Settings', ! $errors->has_errors() );
 update_option( 'clear_postcode_checkout', '1' );
 
-echo "== Postcode checker (fake API)\n";
-cpt_reset_cache();
+echo "== Settings: the secret key is never shown again\n";
+update_option( 'clear_postcode_secret_key', $live_key );
+wp_set_current_user( 1 );
+ob_start();
+clear_postcode_settings_page();
+$page = (string) ob_get_clean();
+cpt_check( 'the settings screen never prints the secret key', false === strpos( $page, $live_key ) && false !== strpos( $page, clear_postcode_mask( $live_key ) ) );
 cpt_fake(
 	function () {
-		return cpt_answer(
-			200,
-			array(
-				'data' => array(
-					'postcode'        => 'AB1 0AA',
-					'status'          => 'terminated',
-					'replaced_by'     => 'AB10 1AA',
-					'local_authority' => array(
-						'code' => 'S12000033',
-						'name' => 'Aberdeen City',
-					),
-				),
-			)
-		);
+		return cpt_problem( 500, 'server_error' );
 	}
 );
-$a   = clear_postcode_check( 'AB1 0AA' );
-$req = cpt_last();
+list( $stored ) = cpt_save( clear_postcode_mask( $live_key ) );
+cpt_check( 'saving the masked key keeps the key, with no call', $stored === $live_key && array() === $GLOBALS['cpt']['requests'] );
+wp_set_current_user( 0 );
+
+echo "== Settings: the publishable key (fake API)\n";
+/** Sanitise a publishable key as the settings screen does; returns [stored, messages]. */
+function cpt_save_pub( $value ) {
+	global $wp_settings_errors;
+	$wp_settings_errors         = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+	$GLOBALS['cpt']['requests'] = array();
+	update_option( 'clear_postcode_publishable_key', $value );
+	return array( get_option( 'clear_postcode_publishable_key' ), get_settings_errors( 'clear_postcode_secret_key' ) );
+}
+cpt_fake(
+	function () {
+		return cpt_answer( 200, array( 'data' => array() ) );
+	}
+);
+list( $stored, $messages ) = cpt_save_pub( $pub_key );
+$req                       = cpt_last();
 parse_str( (string) wp_parse_url( $req['url'], PHP_URL_QUERY ), $q );
-cpt_check( 'the checker asks for replaced_by with the area fields', isset( $q['fields'] ) && in_array( 'replaced_by', explode( ',', $q['fields'] ), true ), $req['url'] );
-cpt_check( 'a terminated postcode shows its replacement', $a['ok'] && 'terminated' === $a['data']['status'] && 'AB10 1AA' === $a['data']['replaced_by'] && 'Aberdeen City' === $a['data']['rows'][0]['value'], wp_json_encode( $a ) );
-$html = do_shortcode( '[clear_postcode_lookup button="Find my council"]' );
-cpt_check( 'the shortcode renders the box', false !== strpos( $html, 'Find my council' ) && false !== strpos( $html, 'autocomplete="postal-code"' ) );
+cpt_check( 'a publishable key the API takes from this site is saved', $stored === $pub_key && 'success' === $messages[0]['type'], wp_json_encode( $messages ) );
+cpt_check( 'it is checked from this site\'s origin, with the key in the URL as a browser sends it', untrailingslashit( home_url() ) === $req['args']['headers']['Origin'] && $q['key'] === $pub_key && ! isset( $req['args']['headers']['X-Api-Key'] ) );
+list( $stored, $messages ) = cpt_save_pub( $other_key );
+cpt_check( 'a secret key is refused in the publishable field', $stored === $pub_key && false !== strpos( $messages[0]['message'], 'Secret key field' ) );
+cpt_fake(
+	function () {
+		return cpt_problem( 403, 'origin_not_allowed' );
+	}
+);
+$pub_two                   = 'cp_pub_' . str_repeat( 'F', 32 );
+list( $stored, $messages ) = cpt_save_pub( $pub_two );
+cpt_check( 'a key not yet locked to this domain is saved, with the domain to add', $stored === $pub_two && 'warning' === $messages[0]['type'] && false !== strpos( $messages[0]['message'], clear_postcode_site_host() ), wp_json_encode( $messages ) );
+cpt_check( 'a refused browser key raises no admin notice', false === get_option( 'clear_postcode_alert' ) );
+
+echo "== The finder\n";
+$tag = clear_postcode_finder_tag( "<script src='https://shop.example/finder.js' id='clear-postcode-finder-js'></script>", 'clear-postcode-finder' );
+cpt_check( 'the finder tag carries the publishable key and the selector', false !== strpos( $tag, 'data-key="' . $pub_two . '"' ) && false !== strpos( $tag, 'data-selector="' ) && false !== strpos( $tag, '.clear-postcode input' ) );
+cpt_check( 'other scripts are left alone', '<script src="x"></script>' === clear_postcode_finder_tag( '<script src="x"></script>', 'jquery' ) );
+update_option( 'clear_postcode_finder', '0' );
+cpt_check( 'the finder switch turns it off at checkout and in forms', false === clear_postcode_enqueue_finder() && true === clear_postcode_enqueue_finder( true ) );
+update_option( 'clear_postcode_finder', '1' );
+$asset = (string) file_get_contents( WP_PLUGIN_DIR . '/clear-postcode/assets/finder.js' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+cpt_check( 'the bundled finder is the npm build', 0 === strpos( $asset, '/*! ClearPostcode finder ' ) );
+
+echo "== Postcode checker\n";
+$html = do_shortcode( '[clear_postcode_lookup placeholder="Your postcode"]' );
+cpt_check( 'the checker is a finder input with rows for its areas', false !== strpos( $html, 'data-clearpostcode="postcode"' ) && false !== strpos( $html, 'data-clearpostcode="council"' ) && false !== strpos( $html, 'data-clearpostcode="constituency"' ) && false !== strpos( $html, 'Your postcode' ) );
+cpt_check( 'it loads the finder even with the finder switched off for forms', wp_script_is( 'clear-postcode-finder', 'enqueued' ) );
+cpt_check( 'it needs no admin-ajax handler', false === has_action( 'wp_ajax_nopriv_clear_postcode_check' ) );
+
+echo "== Contact Form 7\n";
+cpt_check( 'Contact Form 7 is active', defined( 'WPCF7_VERSION' ) );
+$cf7 = WPCF7_ContactForm::get_template( array( 'title' => 'Postcode test' ) );
+$cf7->set_properties( array( 'form' => '<label>Postcode [postcode* your-postcode placeholder "SW1A 1AA"]</label> [submit "Send"]' ) );
+$cf7->save();
+$markup = do_shortcode( '[contact-form-7 id="' . $cf7->id() . '"]' );
+cpt_check( 'the [postcode*] tag renders a postal-code input', (bool) preg_match( '/<input[^>]*name="your-postcode"[^>]*>/', $markup, $m ) && false !== strpos( $m[0], 'autocomplete="postal-code"' ) && false !== strpos( $m[0], 'aria-required="true"' ), isset( $m[0] ) ? $m[0] : $markup );
+$cf7_tag = $cf7->scan_form_tags( array( 'type' => 'postcode*' ) )[0];
+cpt_reset_cache();
+cpt_fake(
+	function ( $url ) {
+		return false !== strpos( $url, 'SW1A%201AA' ) ? cpt_validation( 'SW1A 1AA', true, 'live' ) : cpt_answer( 200, array( 'data' => array( 'input' => 'x', 'postcode' => null, 'format_valid' => false, 'known' => false, 'status' => null, 'valid' => false, 'coverage' => 'covered' ) ) );
+	}
+);
+$_POST['your-postcode'] = 'ZZ1 1ZZ';
+$result                 = apply_filters( 'wpcf7_validate_postcode*', new WPCF7_Validation(), $cf7_tag );
+cpt_check( 'a postcode that is not a UK postcode stops the form, with a clear message', ! $result->is_valid() && false !== strpos( (string) wp_json_encode( $result->get_invalid_fields() ), 'ZZ1 1ZZ' ), wp_json_encode( $result->get_invalid_fields() ) );
+$_POST['your-postcode'] = 'SW1A 1AA';
+cpt_check( 'a live postcode sends', apply_filters( 'wpcf7_validate_postcode*', new WPCF7_Validation(), $cf7_tag )->is_valid() );
+$_POST['your-postcode'] = '';
+cpt_check( 'an empty required postcode is refused', ! apply_filters( 'wpcf7_validate_postcode*', new WPCF7_Validation(), $cf7_tag )->is_valid() );
+unset( $_POST['your-postcode'] );
+$cf7->delete();
+
+echo "== WPForms\n";
+cpt_check( 'WPForms is active', function_exists( 'wpforms' ) );
+$form_data = array(
+	'id'     => 4242,
+	'fields' => array(
+		1 => array(
+			'id'   => 1,
+			'type' => 'text',
+			'css'  => 'clear-postcode',
+		),
+		2 => array(
+			'id'   => 2,
+			'type' => 'text',
+			'css'  => '',
+		),
+	),
+);
+$process   = wpforms()->obj( 'process' );
+clear_postcode_wpforms_validate(
+	array(
+		1 => array( 'value' => 'ZZ1 1ZZ' ),
+		2 => array( 'value' => 'ZZ1 1ZZ' ),
+	),
+	array(),
+	$form_data
+);
+cpt_check( 'a postcode field with the clear-postcode class is checked', isset( $process->errors[4242][1] ) && false !== strpos( $process->errors[4242][1], 'ZZ1 1ZZ' ) && ! isset( $process->errors[4242][2] ), wp_json_encode( $process->errors ) );
+$process->errors = array();
+clear_postcode_wpforms_validate( array( 1 => array( 'value' => 'SW1A 1AA' ) ), array(), $form_data );
+cpt_check( 'a live postcode goes through', empty( $process->errors[4242] ) );
+$GLOBALS['wp_scripts']->remove( 'clear-postcode-finder' );
+wp_register_script( 'clear-postcode-finder', 'x', array(), '1', true );
+wp_dequeue_script( 'clear-postcode-finder' );
+clear_postcode_wpforms_output( $form_data );
+cpt_check( 'a form with a postcode field loads the finder', wp_script_is( 'clear-postcode-finder', 'enqueued' ) );
 
 echo "== Keyless, against the live API\n";
 delete_option( 'clear_postcode_secret_key' );
@@ -367,8 +462,7 @@ $req = cpt_last();
 cpt_check( 'live: SW1A 1AA is valid', 'valid' === $r['state'], wp_json_encode( $r ) );
 cpt_check( 'live: a keyless call sends no key', ! isset( $req['args']['headers']['X-Api-Key'] ) );
 cpt_check( 'live: ZZ1 1ZZ is not a postcode', 'invalid_format' === clear_postcode_validate( 'ZZ1 1ZZ' )['state'] );
-$a = clear_postcode_check( 'M1 1AE' );
-cpt_check( 'live: the checker answers M1 1AE with its council', $a['ok'] && in_array( 'Manchester', wp_list_pluck( $a['data']['rows'], 'value' ), true ), wp_json_encode( $a ) );
+cpt_check( 'live: M1 1AE is valid', 'valid' === clear_postcode_validate( 'M1 1AE' )['state'] );
 cpt_check( 'live: no notice after keyless answers', false === get_option( 'clear_postcode_alert' ) );
 
 printf( "\n%d passed, %d failed\n", $GLOBALS['cpt']['pass'], $GLOBALS['cpt']['fail'] );

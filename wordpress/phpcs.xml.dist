@@ -2,6 +2,7 @@
 <ruleset name="ClearPostcode">
 	<description>WordPress coding standards for the ClearPostcode plugin.</description>
 	<file>clear-postcode</file>
+	<file>integrations-untested</file>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 	<config name="minimum_wp_version" value="6.0"/>

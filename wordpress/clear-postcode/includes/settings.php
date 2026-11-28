@@ -1,7 +1,8 @@
 <?php
 /**
- * Settings → ClearPostcode: the secret key (checked against the API when saved), two switches, and the notice that
- * tells the site owner when the API refuses the key or the allowance runs out.
+ * Settings → ClearPostcode: the secret key (checked against the API when saved, never shown again), the publishable
+ * key for the postcode finder, the switches, and the notice that tells the site owner when the API refuses the key or
+ * the allowance runs out.
  *
  * @package ClearPostcode
  */
@@ -29,6 +30,15 @@ function clear_postcode_settings_message( $code, $message, $type = 'error' ) {
 }
 
 /**
+ * A saved secret key as the settings screen shows it: the prefix and the last four characters, never the key.
+ *
+ * @param string $key A secret key.
+ */
+function clear_postcode_mask( $key ) {
+	return 'cp_live_' . str_repeat( '•', 12 ) . substr( $key, -4 );
+}
+
+/**
  * Check a secret key being saved: its format, then one free call to /v1/usage with it. A key the API refuses is not
  * saved (the previous one stays); a key the API can't confirm just now is saved.
  *
@@ -38,9 +48,13 @@ function clear_postcode_settings_message( $code, $message, $type = 'error' ) {
 function clear_postcode_sanitize_secret_key( $value ) {
 	static $checked = array(); // WordPress sanitises twice when the option is first added: check once.
 
-	$value = trim( sanitize_text_field( (string) $value ) );
+	$value    = trim( sanitize_text_field( (string) $value ) );
+	$previous = clear_postcode_secret_key();
+	if ( '' !== $previous && clear_postcode_mask( $previous ) === $value ) {
+		return $previous; // The masked key came back unchanged: keep it.
+	}
 	if ( ! isset( $checked[ $value ] ) ) {
-		$checked[ $value ] = clear_postcode_check_secret_key( $value, clear_postcode_secret_key() );
+		$checked[ $value ] = clear_postcode_check_secret_key( $value, $previous );
 	}
 	return $checked[ $value ];
 }
@@ -100,7 +114,17 @@ add_action(
 				'sanitize_callback' => 'clear_postcode_sanitize_secret_key',
 			)
 		);
+		register_setting(
+			'clear_postcode',
+			'clear_postcode_publishable_key',
+			array(
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'clear_postcode_sanitize_publishable_key',
+			)
+		);
 		foreach ( array(
+			'clear_postcode_finder'   => '1',
 			'clear_postcode_checkout' => '1',
 			'clear_postcode_strict'   => '0',
 		) as $option => $default ) {
@@ -139,11 +163,12 @@ function clear_postcode_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
+	$secret = clear_postcode_secret_key();
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'ClearPostcode', 'clear-postcode' ); ?></h1>
 		<p>
-			<?php esc_html_e( 'Every UK billing and shipping postcode checked as the order is placed. Get your free secret key at', 'clear-postcode' ); ?>
+			<?php esc_html_e( 'Every UK postcode checked as it is typed and again as the order is placed. Get your free keys at', 'clear-postcode' ); ?>
 			<a href="<?php echo esc_url( 'https://clearpostcode.co.uk/developers#key' ); ?>" target="_blank" rel="noopener">clearpostcode.co.uk/developers</a>.
 		</p>
 		<form method="post" action="options.php">
@@ -152,8 +177,29 @@ function clear_postcode_settings_page() {
 				<tr>
 					<th scope="row"><label for="clear_postcode_secret_key"><?php esc_html_e( 'Secret key', 'clear-postcode' ); ?></label></th>
 					<td>
-						<input type="password" class="regular-text code" id="clear_postcode_secret_key" name="clear_postcode_secret_key" value="<?php echo esc_attr( clear_postcode_secret_key() ); ?>" placeholder="cp_live_..." autocomplete="off" spellcheck="false">
-						<p class="description"><?php esc_html_e( 'Starts cp_live_. It stays on your server: checkout checks and the postcode checker call the API from here, never from the visitor’s browser. Leave it empty to run on the free keyless allowance.', 'clear-postcode' ); ?></p>
+						<input type="text" class="regular-text code" id="clear_postcode_secret_key" name="clear_postcode_secret_key" value="<?php echo esc_attr( '' === $secret ? '' : clear_postcode_mask( $secret ) ); ?>" placeholder="cp_live_..." autocomplete="off" spellcheck="false">
+						<p class="description"><?php esc_html_e( 'Starts cp_live_. It stays on your server, where checkout checks run, and is never shown again once saved. Clear the field to run on the free keyless allowance.', 'clear-postcode' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="clear_postcode_publishable_key"><?php esc_html_e( 'Publishable key', 'clear-postcode' ); ?></label></th>
+					<td>
+						<input type="text" class="regular-text code" id="clear_postcode_publishable_key" name="clear_postcode_publishable_key" value="<?php echo esc_attr( clear_postcode_publishable_key() ); ?>" placeholder="cp_pub_..." autocomplete="off" spellcheck="false">
+						<p class="description">
+							<?php
+							/* translators: %s: this site's domain. */
+							echo esc_html( sprintf( __( 'Starts cp_pub_, locked to %s. Optional: the postcode finder runs in your visitors\' browsers and works without one. With Address lookup on your account, it turns the finder into a full address finder.', 'clear-postcode' ), clear_postcode_site_host() ) );
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Postcode finder', 'clear-postcode' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="clear_postcode_finder" value="1" <?php checked( get_option( 'clear_postcode_finder', '1' ), '1' ); ?>>
+							<?php esc_html_e( 'Format and check postcodes as they are typed, with suggestions, at checkout, on My account addresses and on postcode fields in Contact Form 7 and WPForms', 'clear-postcode' ); ?>
+						</label>
 					</td>
 				</tr>
 				<tr>
@@ -161,7 +207,7 @@ function clear_postcode_settings_page() {
 					<td>
 						<label>
 							<input type="checkbox" name="clear_postcode_checkout" value="1" <?php checked( get_option( 'clear_postcode_checkout', '1' ), '1' ); ?>>
-							<?php esc_html_e( 'Check billing and shipping postcodes at checkout', 'clear-postcode' ); ?>
+							<?php esc_html_e( 'Check billing and shipping postcodes as the order is placed', 'clear-postcode' ); ?>
 						</label>
 						<br>
 						<label>
@@ -173,9 +219,13 @@ function clear_postcode_settings_page() {
 			</table>
 			<?php submit_button(); ?>
 		</form>
+		<h2><?php esc_html_e( 'Forms', 'clear-postcode' ); ?></h2>
+		<p><?php esc_html_e( 'Contact Form 7: add a postcode field with the tag below. It formats and checks the postcode as it is typed, and the form will not send a postcode that is not a UK postcode.', 'clear-postcode' ); ?></p>
+		<p><code>[postcode* your-postcode]</code></p>
+		<p><?php esc_html_e( 'WPForms: add a Single Line Text field and give it the CSS class clear-postcode (Advanced, CSS Classes). The same checks apply.', 'clear-postcode' ); ?></p>
 		<h2><?php esc_html_e( 'Postcode checker', 'clear-postcode' ); ?></h2>
-		<p><code>[clear_postcode_lookup]</code> <?php esc_html_e( 'adds a postcode checker to any page, post or widget area. Optional: placeholder and button text.', 'clear-postcode' ); ?></p>
-		<p><code>[clear_postcode_lookup placeholder="Your postcode" button="Find my council"]</code></p>
+		<p><code>[clear_postcode_lookup]</code> <?php esc_html_e( 'adds a postcode checker to any page, post or widget area: visitors type a postcode and see its council, ward, constituency, region and country as they type.', 'clear-postcode' ); ?></p>
+		<p><code>[clear_postcode_lookup placeholder="Your postcode"]</code></p>
 	</div>
 	<?php
 }

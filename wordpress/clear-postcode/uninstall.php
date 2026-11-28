@@ -8,7 +8,7 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
-foreach ( array( 'clear_postcode_secret_key', 'clear_postcode_checkout', 'clear_postcode_strict', 'clear_postcode_alert' ) as $clear_postcode_option ) {
+foreach ( array( 'clear_postcode_secret_key', 'clear_postcode_publishable_key', 'clear_postcode_finder', 'clear_postcode_checkout', 'clear_postcode_strict', 'clear_postcode_alert' ) as $clear_postcode_option ) {
 	delete_option( $clear_postcode_option );
 }
 
