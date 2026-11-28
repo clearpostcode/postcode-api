@@ -4,8 +4,8 @@ Every UK postcode, answered in milliseconds: look up, validate and autocomplete 
 constituency, coordinates, police force, NHS area and deprivation decile behind each one. Find the nearest postcodes,
 reverse geocode a point, measure distances, list a district, search places, and look up full Royal Mail addresses.
 
-- **Typed end to end:** every answer is a `TypedDict` generated from the API's OpenAPI document, every error a class.
-  mypy strict and pyright read it all.
+- **Typed end to end:** every answer is a `TypedDict` generated from the API's OpenAPI document, every error a class,
+  and a full lookup is a `PostcodeRecord` with every field. mypy strict and pyright check each one.
 - **Sync and async:** `ClearPostcode` and `AsyncClearPostcode`, on httpx, with context managers.
 - **Built for production:** automatic retries with backoff that honour `Retry-After` and the rate-limit headers,
   timeouts, cursor pagination and bulk calls of any size.
@@ -30,7 +30,8 @@ from clearpostcode import ClearPostcode
 
 with ClearPostcode() as cp:
     pc = cp.postcodes.lookup("SW1A 1AA").data
-    print(pc["local_authority"]["name"], pc["constituency"]["name"])
+    council, seat = pc["local_authority"], pc["constituency"]
+    print(council and council["name"], seat and seat["name"])
     # Westminster Cities of London and Westminster
 
     check = cp.postcodes.validate("m1 1ae").data
@@ -74,8 +75,9 @@ from clearpostcode import ClearPostcode
 
 with ClearPostcode() as cp:
     r = cp.postcodes.lookup("EH1 1YZ", fields=["location", "ward"])
-    print(r.data["ward"]["name"], r.data["location"]["latitude"])  # City Centre 55.950328
-    print(r.rate_limit.policy if r.rate_limit else None)  # day
+    ward, where = r.data.get("ward"), r.data.get("location")
+    print(ward and ward["name"], where and where["latitude"])  # City Centre 55.950328
+    print(r.request_id is not None, r.rate_limit is not None)  # True True
 ```
 
 ## Async
@@ -89,7 +91,8 @@ from clearpostcode import AsyncClearPostcode
 async def main() -> None:
     async with AsyncClearPostcode() as cp:
         a, b = await asyncio.gather(cp.postcodes.lookup("M1 1AE"), cp.postcodes.lookup("CF10 1EP"))
-        print(a.data["local_authority"]["name"], b.data["local_authority"]["name"])  # Manchester Cardiff
+        councils = [r.data["local_authority"] for r in (a, b)]
+        print(*(c["name"] for c in councils if c))  # Manchester Cardiff
 
 
 asyncio.run(main())
@@ -118,7 +121,7 @@ with ClearPostcode() as cp:
 | `PermissionDeniedError` | 403 | `origin_not_allowed`, `publishable_key_not_allowed`, `secret_key_in_browser`, `address_lookup_not_enabled` |
 | `NotFoundError` | 404 | `postcode_not_found`, `not_covered`, `not_found` |
 | `UnprocessableEntityError` | 422 | `no_position` |
-| `RateLimitError` | 429 | `rate_limited`, `daily_cap_reached` |
+| `RateLimitError` | 429 | `rate_limited`, `daily_cap_reached`, `suggestions_capped` |
 | `InternalServerError` | 5xx | `server_error`, `service_unavailable` |
 | `APIConnectionError`, `APITimeoutError` | | The API could not be reached, or did not answer in time |
 
@@ -149,7 +152,9 @@ with ClearPostcode() as cp:  # a secret key in CLEAR_POSTCODE_KEY
 ```
 
 Bulk calls take lists of any length: the client sends 100 postcodes (or 20 points) a call, one after another, and
-joins the answers in the order you sent them.
+joins the answers in the order you sent them. If a chunk fails part-way (the month's lookups run out, say), the error
+carries `partial`: everything the chunks before it answered, so nothing you paid for is lost. Bulk calls are retried
+only on answers that say nothing was billed (429 and 503).
 
 ## Address lookup
 
@@ -164,7 +169,7 @@ account: once the business your key serves has Address lookup switched on in you
 from clearpostcode import ClearPostcode
 
 with ClearPostcode() as cp:
-    # Suggestions are free. Kind "container" (a postcode, street or building) lists what it holds.
+    # Suggestions are free (within a daily allowance per business). Kind "container" lists what it holds.
     found = cp.addresses.suggest("2 high street porthmore").data
     if found and found[0]["kind"] == "container":
         found = cp.addresses.suggest("", container=found[0]["id"]).data

@@ -15,7 +15,7 @@ const ROUTES = {
   byUdprn: { op: "addressByUdprn", udprn: "udprn" },
 } as const;
 
-export interface AddressSuggestOptions extends RequestOptions {
+export interface AddressSuggestParams {
   /** A container suggestion's id: list the addresses (or smaller containers) it holds. */
   container?: string;
   /** How many suggestions (1 to 100, default 10). */
@@ -30,23 +30,23 @@ export class Addresses {
   }
 
   /** One page of the addresses at a postcode, in delivery order (up to 100 a page; 1 address credit a page). */
-  byPostcode(postcode: string, options: RequestOptions & { cursor?: string } = {}): Promise<Page<Address, AddressMeta>> {
+  byPostcode(postcode: string, params: { cursor?: string } = {}, options: RequestOptions = {}): Promise<Page<Address, AddressMeta>> {
     const r = ROUTES.byPostcode;
-    return pageOf(this.#t, r.op, { query: { [r.postcode]: postcode } }, r.cursor, options.cursor ?? null, options);
+    return pageOf(this.#t, r.op, { query: { [r.postcode]: postcode } }, r.cursor, params.cursor ?? null, options);
   }
 
   /** Every address at a postcode, page after page. */
   allByPostcode(postcode: string, options: RequestOptions = {}): AsyncGenerator<Address> {
-    return every(this.byPostcode(postcode, options));
+    return every(() => this.byPostcode(postcode, {}, options));
   }
 
   /**
    * Suggestions as the customer types (free): kind "address" is one address (resolve its id with retrieve()), kind
    * "container" is a postcode, street or building holding `count` addresses (pass its id as `container`).
    */
-  suggest(q: string, options: AddressSuggestOptions = {}): Promise<Result<AddressSuggestion[], AddressMeta>> {
+  suggest(q: string, params: AddressSuggestParams = {}, options: RequestOptions = {}): Promise<Result<AddressSuggestion[], AddressMeta>> {
     const r = ROUTES.suggest;
-    return this.#t.request(r.op, { query: { [r.q]: q || undefined, [r.container]: options.container, [r.limit]: options.limit } }, options);
+    return this.#t.request(r.op, { query: { [r.q]: q || undefined, [r.container]: params.container, [r.limit]: params.limit } }, options);
   }
 
   /** The full address for an address suggestion's id (1 address credit). */

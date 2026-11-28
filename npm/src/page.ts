@@ -25,7 +25,7 @@ export async function pageOf<I extends Paged>(t: Transport, id: I, call: Call, c
   };
 }
 
-/** Every item of a list, following the cursor page after page. */
-export async function* every<T, M>(first: Promise<Page<T, M>>): AsyncGenerator<T> {
-  for (let page: Page<T, M> | null = await first; page; page = await page.next()) yield* page.data;
+/** Every item of a list, following the cursor page after page. Nothing is fetched until the first item is read. */
+export async function* every<T, M>(first: () => Promise<Page<T, M>>): AsyncGenerator<T> {
+  for (let page: Page<T, M> | null = await first(); page; page = await page.next()) yield* page.data;
 }

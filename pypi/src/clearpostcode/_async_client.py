@@ -5,14 +5,14 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Sequence
 from types import TracebackType
-from typing import Any, Self
+from typing import Any, Self, overload
 
 import httpx
 
 from . import _base, _calls
 from ._base import BULK_POINTS, BULK_POSTCODES, AsyncPage, BulkResult, Call, Result
 from ._calls import ReversePoint
-from ._errors import APIConnectionError, APIError, APITimeoutError
+from ._errors import APIConnectionError, APIError, APITimeoutError, ClearPostcodeError
 from ._generated import (
     BASE_URL,
     Address,
@@ -28,6 +28,7 @@ from ._generated import (
     Place,
     Postcode,
     PostcodeField,
+    PostcodeRecord,
     ReverseItem,
     Sector,
     Suggestion,
@@ -78,7 +79,8 @@ class AsyncClearPostcode:
         )
 
     async def _send(self, call: Call[_base.DataT, _base.MetaT]) -> Result[_base.DataT, _base.MetaT]:
-        """Make the call, retrying 429s, 5xx answers, timeouts and dropped connections with backoff."""
+        """Make the call, retrying 429s, 5xx answers, timeouts and dropped connections with backoff (a POST: 429 and
+        503 only)."""
         cfg = self._config
         attempt = 0
         while True:
@@ -87,17 +89,17 @@ class AsyncClearPostcode:
             except httpx.TimeoutException as e:
                 error: APIError | APIConnectionError = APITimeoutError(f"No answer within {cfg.timeout} s")
                 error.__cause__ = e
-                wait = _base.backoff(attempt) if attempt < cfg.max_retries else None
+                wait = _base.connection_wait(cfg, call, attempt)
             except httpx.TransportError as e:
                 error = APIConnectionError(f"Could not reach the ClearPostcode API: {e}")
                 error.__cause__ = e
-                wait = _base.backoff(attempt) if attempt < cfg.max_retries else None
+                wait = _base.connection_wait(cfg, call, attempt)
             else:
                 out = _base.answer(response, call)
                 if isinstance(out, Result):
                     return out
                 error = out
-                wait = _base.retry_wait(cfg, out, attempt, cfg.max_retries)
+                wait = _base.retry_wait(cfg, call, out, attempt)
             if wait is None:
                 raise error
             await asyncio.sleep(wait)
@@ -136,9 +138,17 @@ class Postcodes:
     def __init__(self, client: AsyncClearPostcode) -> None:
         self._c = client
 
-    async def lookup(self, postcode: str, *, fields: Sequence[PostcodeField] | None = None) -> Result[Postcode, Meta]:
+    @overload
+    async def lookup(self, postcode: str) -> Result[PostcodeRecord, Meta]: ...
+    @overload
+    async def lookup(self, postcode: str, *, fields: Sequence[PostcodeField]) -> Result[Postcode, Meta]: ...
+    async def lookup(
+        self, postcode: str, *, fields: Sequence[PostcodeField] | None = None
+    ) -> Result[PostcodeRecord, Meta] | Result[Postcode, Meta]:
         """Everything about one postcode (1 lookup when found; not found is free). ``fields`` trims the record."""
-        return await self._c._send(_calls.lookup(postcode, fields))
+        if fields:
+            return await self._c._send(_calls.lookup_fields(postcode, fields))
+        return await self._c._send(_calls.lookup(postcode))
 
     async def validate(self, postcode: str) -> Result[Validation, Meta]:
         """Is the format valid, is it in the current edition, is it live? Never raises for a wrong postcode."""
@@ -160,15 +170,25 @@ class Postcodes:
         self, postcodes: Iterable[str], *, fields: Sequence[PostcodeField] | None = None
     ) -> BulkResult[BulkItem]:
         """Any number of postcodes, sent 100 a call, in the order given. Needs a secret key."""
-        return _base.joined(
-            [await self._c._send(_calls.bulk(chunk, fields)) for chunk in _base.chunks(postcodes, BULK_POSTCODES)]
-        )
+        done: list[Result[list[Any], Meta]] = []
+        for chunk in _base.chunks(postcodes, BULK_POSTCODES):
+            try:
+                done.append(await self._c._send(_calls.bulk(chunk, fields)))
+            except ClearPostcodeError as e:
+                e.partial = _base.joined(done)
+                raise
+        return _base.joined(done)
 
     async def bulk_reverse(self, points: Iterable[ReversePoint]) -> BulkResult[ReverseItem]:
         """Nearest postcodes for any number of points, sent 20 a call. Needs a secret key."""
-        return _base.joined(
-            [await self._c._send(_calls.bulk_reverse(chunk)) for chunk in _base.chunks(points, BULK_POINTS)]
-        )
+        done: list[Result[list[Any], Meta]] = []
+        for chunk in _base.chunks(points, BULK_POINTS):
+            try:
+                done.append(await self._c._send(_calls.bulk_reverse(chunk)))
+            except ClearPostcodeError as e:
+                e.partial = _base.joined(done)
+                raise
+        return _base.joined(done)
 
     async def autocomplete(self, q: str, *, limit: int | None = None) -> Result[list[Suggestion], Meta]:
         """Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free."""

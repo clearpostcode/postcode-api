@@ -1,8 +1,17 @@
-import type { Problem, ProblemCode } from "./generated.ts";
+import type { Meta, Problem, ProblemCode } from "./generated.ts";
+
+/** What a bulk call had answered (and billed) before the chunk that failed. */
+export interface BulkPartial {
+  readonly data: unknown[];
+  readonly meta: Meta | null;
+  readonly requestIds: (string | null)[];
+}
 
 /** Every error the client throws. */
 export class ClearPostcodeError extends Error {
   override name = "ClearPostcodeError";
+  /** Set when a bulk call fails part-way: the chunks already answered, so nothing billed is lost. */
+  partial: BulkPartial | null = null;
 }
 
 /**
@@ -12,7 +21,8 @@ export class ClearPostcodeError extends Error {
 export class APIError extends ClearPostcodeError {
   override name = "APIError";
   readonly status: number;
-  readonly code: ProblemCode | null;
+  /** The problem type. New codes may appear, so match the ones you handle and let the rest through. */
+  readonly code: ProblemCode | (string & {}) | null;
   readonly title: string | null;
   readonly detail: string | null;
   readonly requestId: string | null;

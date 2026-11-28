@@ -5,6 +5,7 @@
 //   node scripts/generate.mjs --check      exit 1 if either file is out of date (the test suites run this)
 //   node scripts/generate.mjs --update URL refresh the snapshot first (default https://api.clearpostcode.co.uk/openapi.json;
 //                                          a path to a local document works too), then write both files
+//   node scripts/generate.mjs --live       exit 1 if the live document differs from the snapshot (run before publishing)
 //
 // Every schema becomes a type (TypeScript) and a TypedDict (Python); nested objects get the same names in both. Each
 // operation's method, path and query parameters become OPERATIONS, which both clients route from, so an SDK can only
@@ -26,20 +27,31 @@ if (args[0] === "--update") {
   JSON.parse(text);
   writeFileSync(SNAPSHOT, text.endsWith("\n") ? text : `${text}\n`);
 }
+if (args[0] === "--live") {
+  const live = await (await fetch(LIVE, { headers: { "user-agent": "clearpostcode-sdk-generator" } })).json();
+  if (JSON.stringify(live) !== JSON.stringify(JSON.parse(readFileSync(SNAPSHOT, "utf8")))) {
+    console.error("generate: the live OpenAPI document differs from openapi/openapi.json. Run node scripts/generate.mjs --update, review the diff and regenerate.");
+    process.exit(1);
+  }
+  console.log("generate: openapi/openapi.json matches the live document");
+  process.exit(0);
+}
 const doc = JSON.parse(readFileSync(SNAPSHOT, "utf8"));
 const SCHEMAS = doc.components.schemas;
 
-/** Names for nested shapes, by their sorted property names (the first shape to claim a name keeps it); others are
- *  Parent + Property (+ Item for an array's items). */
-const SHAPES = {
-  "latitude,longitude": "Point",
-  "outcode,postcodes,type": "DistrictSuggestion",
-  "postcode,type": "PostcodeSuggestion",
-  "id,kind,postcode,suggestion,udprn,umprn": "SuggestedAddress",
-  "count,id,kind,postcode,suggestion,type": "SuggestedContainer",
-  "easting,latitude,longitude,northing,positional_quality,positional_quality_label,postcode": "DistanceEnd",
-  "code,name,postcodes,share": "AreaShare",
-  "code,name,postcodes": "AreaCount",
+/** Names for nested shapes, by where they sit in the document: Component.property, [] for an array's items, #value for
+ *  a oneOf variant (its const discriminator). A name stays put when its shape gains a field. Any other nested shape is
+ *  Parent + Property (+ Item for an array's items, + Value for a variant); an identical shape elsewhere reuses the name
+ *  of the first. openapi/type-names.json locks the exported names: a regeneration that would drop one fails. */
+const NAMES = {
+  "District.centre": "Point",
+  "District.regions[]": "AreaShare",
+  "Sector.local_authorities[]": "AreaCount",
+  "Distance.from": "DistanceEnd",
+  "Suggestion#district": "DistrictSuggestion",
+  "Suggestion#postcode": "PostcodeSuggestion",
+  "AddressSuggestion#address": "SuggestedAddress",
+  "AddressSuggestion#container": "SuggestedContainer",
 };
 const pascal = (s) => s.replace(/(^|_)([a-z])/g, (_, __, c) => c.toUpperCase());
 const refName = (r) => r.replace("#/components/schemas/", "");
@@ -47,28 +59,32 @@ const isObject = (s) => s && s.type === "object" && s.properties;
 const nullable = (s) => Array.isArray(s.anyOf) && s.anyOf.length === 2 && s.anyOf.some((x) => x.type === "null");
 const inner = (s) => s.anyOf.find((x) => x.type !== "null");
 
-/** Every named type in dependency order: [name, objectSchema, description]. */
+/** Every named object type, in dependency order, and the name each object schema in the document carries. */
 const named = new Map();
+const nameOf = new WeakMap();
 const byShape = new Map();
-function nameFor(schema, suggested) {
+function nameFor(schema, path, fallback) {
   const shape = JSON.stringify(schema);
-  if (byShape.has(shape)) return byShape.get(shape);
-  const hint = SHAPES[Object.keys(schema.properties).sort().join(",")];
-  // Point is a centre that is always there; a point that can be null (a bulk reverse query) keeps its path name.
-  const fits = hint && !named.has(hint) && !(hint === "Point" && Object.values(schema.properties).some((v) => Array.isArray(v.type)));
-  const name = fits ? hint : suggested;
-  if (named.has(name)) throw new Error(`generate: two shapes want the name ${name}`);
-  byShape.set(shape, name);
-  for (const [k, v] of Object.entries(schema.properties)) visit(v, name + pascal(k));
-  named.set(name, schema);
-  return name;
+  const explicit = NAMES[path];
+  if (!explicit && byShape.has(shape)) return void nameOf.set(schema, byShape.get(shape));
+  const name = explicit ?? fallback;
+  if (named.has(name) && JSON.stringify(named.get(name)) !== shape) throw new Error(`generate: two shapes want the name ${name} (${path})`);
+  nameOf.set(schema, name);
+  if (!byShape.has(shape)) byShape.set(shape, name);
+  for (const [k, v] of Object.entries(schema.properties)) visit(v, `${name}.${k}`, name + pascal(k));
+  if (!named.has(name)) named.set(name, schema);
 }
-function visit(s, suggested) {
+function visit(s, path, fallback) {
   if (!s || s.$ref) return;
-  if (nullable(s)) return visit(inner(s), suggested);
-  if (s.oneOf) return s.oneOf.forEach((x, i) => visit(x, `${suggested}${i}`));
-  if (s.type === "array") return visit(s.items, `${suggested}Item`);
-  if (isObject(s)) nameFor(s, suggested);
+  if (nullable(s)) return visit(inner(s), path, fallback);
+  if (s.oneOf) {
+    return s.oneOf.forEach((x, i) => {
+      const tag = Object.values(x.properties ?? {}).find((p) => "const" in p)?.const ?? String(i);
+      visit(x, `${path}#${tag}`, fallback + pascal(String(tag)));
+    });
+  }
+  if (s.type === "array") return visit(s.items, `${path}[]`, `${fallback}Item`);
+  if (isObject(s)) nameFor(s, path, fallback);
 }
 /** Components first in dependency order: a component's refs and nested shapes before it. */
 const order = [];
@@ -79,17 +95,20 @@ function component(name) {
   const s = SCHEMAS[name];
   JSON.stringify(s, (k, v) => (k === "$ref" ? (component(refName(v)), v) : v));
   if (isObject(s)) {
-    for (const [k, v] of Object.entries(s.properties)) visit(v, name + pascal(k));
-    named.set(name, s);
+    nameOf.set(s, name);
     byShape.set(JSON.stringify(s), name);
+    for (const [k, v] of Object.entries(s.properties)) visit(v, `${name}.${k}`, name + pascal(k));
+    named.set(name, s);
   } else if (nullable(s) && isObject(inner(s))) {
-    // Named: a nullable object. The object is its own type; the component adds `| null`.
+    // Named: a nullable object. The object is its own type; every use adds `| null`.
+    nameOf.set(inner(s), name);
     byShape.set(JSON.stringify(inner(s)), name);
     named.set(name, inner(s));
-  } else visit(s, name);
+  } else visit(s, name, name);
   order.push(name);
 }
 Object.keys(SCHEMAS).forEach(component);
+const objectName = (s) => nameOf.get(s) ?? byShape.get(JSON.stringify(s));
 
 // ---------------------------------------------------------------------------------------------------- TypeScript
 function ts(s) {
@@ -103,7 +122,7 @@ function ts(s) {
     const t = ts(s.items);
     return /[ |]/.test(t) ? `(${t})[]` : `${t}[]`;
   }
-  if (s.type === "object") return isObject(s) ? byShape.get(JSON.stringify(s)) : "Record<string, unknown>";
+  if (s.type === "object") return isObject(s) ? objectName(s) : "Record<string, unknown>";
   return { string: "string", integer: "number", number: "number", boolean: "boolean", null: "null" }[s.type] ?? "unknown";
 }
 const doc1 = (text, pad = "") => (text ? `${pad}/** ${text.replace(/\*\//g, "*\\/")} */\n` : "");
@@ -128,7 +147,7 @@ function py(s) {
   }
   if (Array.isArray(s.type)) return s.type.map((t) => py({ type: t })).join(" | ");
   if (s.type === "array") return `list[${py(s.items)}]`;
-  if (s.type === "object") return isObject(s) ? byShape.get(JSON.stringify(s)) : "dict[str, Any]";
+  if (s.type === "object") return isObject(s) ? objectName(s) : "dict[str, Any]";
   return { string: "str", integer: "int", number: "float", boolean: "bool", null: "None" }[s.type] ?? "Any";
 }
 function pyTypedDict(name, s) {
@@ -191,8 +210,12 @@ ${ops.map((o) => `  /** ${o.summary} */\n  ${o.id}: { method: ${JSON.stringify(o
 } as const satisfies Record<OperationId, { method: "GET" | "POST"; path: string; query: readonly string[] }>;
 `;
 
-const pyBody = [...named.keys()].map((n) => pyTypedDict(n, named.get(n))).join("\n\n\n");
-const pyNames = ["BASE_URL", "OPERATIONS", "PostcodeField", "ProblemCode", ...named.keys(), ...order.filter((n) => !named.has(n))];
+// PostcodeRecord: a lookup without fields answers every field, so Python gets the total form TypeScript makes with
+// Required<Postcode>.
+const pyBody = [...named.keys()]
+  .map((n) => pyTypedDict(n, named.get(n)) + (n === "Postcode" ? `\n\n\n${pyTypedDict("PostcodeRecord", { ...named.get(n), required: Object.keys(named.get(n).properties) }).replace("class PostcodeRecord(TypedDict):", 'class PostcodeRecord(TypedDict):\n    """A full postcode record: every field, as a lookup without fields answers."""\n')}` : ""))
+  .join("\n\n\n");
+const pyNames = ["BASE_URL", "PostcodeField", "PostcodeRecord", "ProblemCode", ...named.keys(), ...order.filter((n) => !named.has(n))];
 // ruff's isort-style order: SCREAMING_CASE, then CamelCase.
 const pyAll = pyNames.sort((a, b) => Number(a !== a.toUpperCase()) - Number(b !== b.toUpperCase()) || (a < b ? -1 : 1));
 const pyOut = `"""${header}"""
@@ -226,7 +249,24 @@ ${pyAll.map((n) => `    ${JSON.stringify(n)},`).join("\n")}
 ]
 `;
 
+// The exported names, locked: a regeneration that would drop one (a breaking change) fails unless --allow-removal.
+const LOCK = join(ROOT, "openapi/type-names.json");
+const names = [...new Set([...named.keys(), ...order])].sort();
+let locked = [];
+try {
+  locked = JSON.parse(readFileSync(LOCK, "utf8"));
+} catch {
+  locked = [];
+}
+const dropped = locked.filter((n) => !names.includes(n));
+if (dropped.length && !args.includes("--allow-removal")) {
+  console.error(`generate: these exported types would disappear: ${dropped.join(", ")}. Name their new shapes in NAMES, or pass --allow-removal for a major version.`);
+  process.exit(1);
+}
+const lockText = `${JSON.stringify(names, null, 1)}\n`;
+
 const outputs = [
+  [LOCK, lockText],
   [TS_OUT, tsOut],
   [PY_OUT, pyOut],
 ];

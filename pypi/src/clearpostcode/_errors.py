@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import httpx
 
 from ._generated import ProblemCode
 
+if TYPE_CHECKING:
+    from ._base import BulkResult
+
 
 class ClearPostcodeError(Exception):
     """The base of every error the client raises."""
+
+    #: Set when a bulk call fails part-way: the chunks already answered (and billed), so nothing is lost.
+    partial: BulkResult[Any] | None = None
 
 
 class APIError(ClearPostcodeError):
@@ -24,7 +30,8 @@ class APIError(ClearPostcodeError):
         p = problem or {}
         kind = p.get("type")
         self.status = status
-        self.code: ProblemCode | None = (
+        #: The problem type. New codes may appear, so match the ones you handle and let the rest through.
+        self.code: ProblemCode | str | None = (
             cast(ProblemCode, kind.rsplit("#", 1)[1]) if isinstance(kind, str) and "#" in kind else None
         )
         self.title: str | None = p.get("title")

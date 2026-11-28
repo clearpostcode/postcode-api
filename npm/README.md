@@ -68,7 +68,8 @@ export CLEAR_POSTCODE_KEY=cp_live_...
 | `addresses.suggest`, `retrieve`, `byPostcode`, `allByPostcode`, `byUdprn` | Address lookup (below) |
 
 Every call answers a `Result`: `data` and `meta` as the API sends them, plus `status`, `requestId` and `rateLimit`
-(`policy`, `limit`, `remaining`, `reset`). Every field is documented at
+(`policy`, `limit`, `remaining`, `reset`). API parameters come first, then request options (`signal`, `timeout`,
+`maxRetries`): `cp.postcodes.nearest("SW1A 1AA", { limit: 5 }, { timeout: 2_000 })`. Every field is documented at
 [clearpostcode.co.uk/developers/docs](https://clearpostcode.co.uk/developers/docs).
 
 Ask only for the fields you need, and the types follow:
@@ -106,7 +107,7 @@ try {
 | `PermissionDeniedError` | 403 | `origin_not_allowed`, `publishable_key_not_allowed`, `secret_key_in_browser`, `address_lookup_not_enabled` |
 | `NotFoundError` | 404 | `postcode_not_found`, `not_covered`, `not_found` |
 | `UnprocessableEntityError` | 422 | `no_position` |
-| `RateLimitError` | 429 | `rate_limited`, `daily_cap_reached` |
+| `RateLimitError` | 429 | `rate_limited`, `daily_cap_reached`, `suggestions_capped` |
 | `InternalServerError` | 5xx | `server_error`, `service_unavailable` |
 | `APIConnectionError`, `APITimeoutError` | | The API could not be reached, or did not answer in time |
 
@@ -122,7 +123,7 @@ import { ClearPostcode } from "clearpostcode";
 
 const cp = new ClearPostcode({ timeout: 5_000, maxRetries: 3 });
 const { data, rateLimit } = await cp.postcodes.validate("SW1A 1AA", { signal: AbortSignal.timeout(8_000) });
-console.log(data.valid, rateLimit?.policy); // true day
+console.log(data.valid, rateLimit !== null); // true true
 ```
 
 ## Pages and bulk calls
@@ -141,7 +142,9 @@ console.log(meta?.found, data[1]?.result?.local_authority?.name); // 3 Mancheste
 ```
 
 Bulk calls take lists of any length: the client sends 100 postcodes (or 20 points) a call, one after another, and
-joins the answers in the order you sent them.
+joins the answers in the order you sent them. If a chunk fails part-way (the month's lookups run out, say), the error
+carries `partial`: everything the chunks before it answered, so nothing you paid for is lost. Bulk calls are retried
+only on answers that say nothing was billed (429 and 503).
 
 ## In the browser
 
@@ -170,7 +173,7 @@ import { ClearPostcode } from "clearpostcode";
 
 const cp = new ClearPostcode();
 
-// Suggestions are free. Kind "container" (a postcode, street or building) lists what it holds.
+// Suggestions are free (within a daily allowance per business). Kind "container" lists what it holds.
 const { data: found } = await cp.addresses.suggest("2 high street porthmore");
 const first = found[0];
 const pick = first?.kind === "container" ? (await cp.addresses.suggest("", { container: first.id })).data[0] : first;

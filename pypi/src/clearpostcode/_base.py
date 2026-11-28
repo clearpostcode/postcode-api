@@ -27,6 +27,9 @@ ItemT = TypeVar("ItemT")
 BULK_POSTCODES = 100
 BULK_POINTS = 20
 _RETRY_STATUS = frozenset({408, 429, 500, 502, 503, 504})
+#: A POST (a bulk call) is retried only on answers that say nothing was billed: never after a timeout or a dropped
+#: connection, when the API may have answered and billed it.
+_RETRY_POST = frozenset({429, 503})
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,7 +138,14 @@ def user_agent() -> str:
 def build(cfg: Config, call: Call[Any, Any]) -> httpx.Request:
     """The request for a call: path parameters encoded into the path, then the query the operation takes."""
     method, path, allowed = OPERATIONS[call.op]
-    url = cfg.base_url + re.sub(r"\{(\w+)\}", lambda m: quote(str(call.path[m[1]]).strip(), safe=""), path)
+
+    def segment(m: re.Match[str]) -> str:
+        v = str(call.path.get(m[1], "")).strip()
+        if not v:
+            raise TypeError(f"{call.op} needs a {m[1]}")
+        return quote(v, safe="")
+
+    url = cfg.base_url + re.sub(r"\{(\w+)\}", segment, path)
     params: dict[str, str] = {}
     for k, v in call.query.items():
         if v is None:
@@ -170,7 +180,7 @@ def rate_limit_of(h: httpx.Headers) -> RateLimit | None:
     )
     r = RateLimit(
         policy=policy,
-        limit=_int(h.get("ratelimit-limit")) or _int(item(q, "q")),
+        limit=_int(h.get("ratelimit-limit")) if h.get("ratelimit-limit") else _int(item(q, "q")),
         remaining=_int(h.get("ratelimit-remaining"))
         if h.get("ratelimit-remaining")
         else _int(item(m[2] if m else None, "r")),
@@ -187,8 +197,12 @@ def retry_after_of(h: httpx.Headers) -> float | None:
     try:
         return max(0.0, float(v))
     except ValueError:
-        at = email.utils.parsedate_to_datetime(v) if v else None
-        return max(0.0, at.timestamp() - time.time()) if at else None
+        pass
+    try:
+        at = email.utils.parsedate_to_datetime(v)
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, at.timestamp() - time.time())
 
 
 def backoff(attempt: int) -> float:
@@ -222,9 +236,11 @@ def answer(response: httpx.Response, call: Call[DataT, MetaT]) -> Result[DataT, 
     )
 
 
-def retry_wait(cfg: Config, error: APIError, attempt: int, max_retries: int) -> float | None:
-    """Seconds to wait before retrying an error answer, or None to raise it now."""
-    if error.status not in _RETRY_STATUS or attempt >= max_retries:
+def retry_wait(cfg: Config, call: Call[Any, Any], error: APIError, attempt: int) -> float | None:
+    """Seconds to wait before retrying an error answer, or None to raise it now. No wait is longer than
+    max_retry_delay: a longer Retry-After is raised at once."""
+    retryable = _RETRY_POST if OPERATIONS[call.op][0] == "POST" else _RETRY_STATUS
+    if error.status not in retryable or attempt >= cfg.max_retries:
         return None
     advised = error.retry_after
     if advised is None and error.status == 429:
@@ -232,12 +248,25 @@ def retry_wait(cfg: Config, error: APIError, attempt: int, max_retries: int) -> 
         advised = float(limit.reset) if limit and limit.remaining == 0 and limit.reset is not None else None
     if advised is not None and advised > cfg.max_retry_delay:
         return None
-    return advised if advised is not None else backoff(attempt)
+    return advised if advised is not None else min(backoff(attempt), cfg.max_retry_delay)
+
+
+def connection_wait(cfg: Config, call: Call[Any, Any], attempt: int) -> float | None:
+    """Seconds to wait before retrying after a timeout or a dropped connection (never a POST), or None to raise."""
+    if OPERATIONS[call.op][0] == "POST" or attempt >= cfg.max_retries:
+        return None
+    return min(backoff(attempt), cfg.max_retry_delay)
 
 
 def chunks(items: Iterable[ItemT], size: int) -> list[list[ItemT]]:
     seq = list(items)
     return [seq[i : i + size] for i in range(0, len(seq), size)]
+
+
+def _found(item: Any) -> bool:
+    """Did an item find anything: a bulk lookup's record, a bulk reverse point's postcodes."""
+    result = item.get("result") if isinstance(item, dict) else None
+    return bool(result) if isinstance(result, list) else result is not None
 
 
 def joined(results: list[Result[list[ItemT], Any]]) -> BulkResult[ItemT]:
@@ -248,6 +277,6 @@ def joined(results: list[Result[list[ItemT], Any]]) -> BulkResult[ItemT]:
         meta = {
             **results[-1].meta,
             "sent": sum(r.meta.get("sent", len(r.data)) for r in results),
-            "found": sum(r.meta.get("found", 0) for r in results),
+            "found": sum(r.meta.get("found", sum(map(_found, r.data))) for r in results),
         }
     return BulkResult(data, meta, [r.request_id for r in results], results[-1].rate_limit if results else None)

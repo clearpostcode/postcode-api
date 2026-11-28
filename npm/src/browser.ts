@@ -50,7 +50,8 @@ export class ClearPostcode implements BrowserClient {
 export default ClearPostcode;
 export { VERSION } from "./version.ts";
 export * from "./errors.ts";
-export * from "./generated.ts";
+export type * from "./generated.ts";
+export { BASE_URL } from "./generated.ts";
 export type { PostcodeRecord, PostcodeField, PostcodeWith, Postcodes, Outcodes, Sectors, Areas, Places } from "./client.ts";
-export type { Addresses, AddressSuggestOptions } from "./addresses.ts";
+export type { Addresses, AddressSuggestParams } from "./addresses.ts";
 export type { RateLimit, RequestOptions, Result } from "./http.ts";

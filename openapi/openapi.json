@@ -425,7 +425,7 @@
       }
      },
      "404": {
-      "description": "Postcode not found; Outside our coverage",
+      "description": "Postcode not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -449,12 +449,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -1298,7 +1298,7 @@
       }
      },
      "404": {
-      "description": "Postcode not found; Outside our coverage",
+      "description": "Postcode not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -1322,12 +1322,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -3690,7 +3690,7 @@
       }
      },
      "404": {
-      "description": "Postcode not found; Outside our coverage",
+      "description": "Postcode not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -3714,12 +3714,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -4302,7 +4302,7 @@
       }
      },
      "404": {
-      "description": "Not found; Outside our coverage",
+      "description": "Not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -4326,12 +4326,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -4778,7 +4778,7 @@
       }
      },
      "404": {
-      "description": "Not found; Outside our coverage",
+      "description": "Not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -4802,12 +4802,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -5288,7 +5288,7 @@
       }
      },
      "404": {
-      "description": "Not found; Outside our coverage",
+      "description": "Not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -5312,12 +5312,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -5741,7 +5741,7 @@
       }
      },
      "404": {
-      "description": "Not found; Outside our coverage",
+      "description": "Not found; Northern Ireland postcode",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -5765,12 +5765,12 @@
           }
          },
          "not_covered": {
-          "summary": "Outside our coverage",
+          "summary": "Northern Ireland postcode",
           "value": {
            "type": "https://clearpostcode.co.uk/developers/docs/errors#not_covered",
-           "title": "Outside our coverage",
+           "title": "Northern Ireland postcode",
            "status": 404,
-           "detail": "A Northern Ireland (BT) postcode: valid format, outside the open data. Keys with Address lookup validate BT postcodes against Royal Mail PAF.",
+           "detail": "A Northern Ireland (BT) postcode in a valid format. Postcode data covers Great Britain, the Channel Islands and the Isle of Man; Northern Ireland addresses are served by Address lookup on Royal Mail's Postcode Address File.",
            "instance": "/v1/…",
            "request_id": "8f1c2a7d9b3e4f60-LHR"
           }
@@ -6734,7 +6734,7 @@
      "Addresses"
     ],
     "summary": "Addresses at a postcode (early access)",
-    "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.",
+    "description": "Every Royal Mail PAF address at a postcode, in delivery order: line_1 to line_3, post_town, postcode, organisation, building and UDPRN, up to 100 an answer. A postcode with more pages on: pass meta.next_cursor as cursor= (meta.total says how many there are). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit per page found; not found is free. Works with publishable (browser) keys.",
     "parameters": [
      {
       "name": "postcode",
@@ -7249,7 +7249,7 @@
      "Addresses"
     ],
     "summary": "Address autocomplete (early access)",
-    "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.",
+    "description": "Suggestions as the customer types, from any part of an address: postcode, street, building, organisation or number. A suggestion of kind \"address\" is one address: resolve its id with /addresses/retrieve/{id}. One of kind \"container\" is a postcode, sector, street or building holding count addresses: pass its id as container= to list what it holds. Each line carries only what the picker shows and an opaque id. A business gets a day's suggestions in proportion to the addresses it holds (a call that lists many lines counts as several), far more than its checkouts use. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: Free. Works with publishable (browser) keys.",
     "parameters": [
      {
       "name": "q",
@@ -7333,18 +7333,14 @@
           {
            "kind": "address",
            "id": "YR9UUjI0QUEfOTAwMDAwNTYf",
-           "suggestion": "2 High Street, PORTHMORE, TR2 4AA",
-           "udprn": "90000056",
-           "umprn": null,
-           "postcode": "TR2 4AA"
+           "suggestion": "2 High Street, PORTHMORE, TR2 4AA"
           },
           {
            "kind": "container",
            "type": "postcode",
            "id": "cB9BQjEwMUFB",
            "suggestion": "AB10 1AA",
-           "count": 17,
-           "postcode": "AB10 1AA"
+           "count": 17
           }
          ],
          "meta": {
@@ -7583,7 +7579,7 @@
       }
      },
      "429": {
-      "description": "Too many requests; Daily cap reached for this key",
+      "description": "Today's address suggestions used; Too many requests; Daily cap reached for this key",
       "headers": {
        "X-Request-Id": {
         "$ref": "#/components/headers/X-Request-Id"
@@ -7598,6 +7594,17 @@
          "$ref": "#/components/schemas/Problem"
         },
         "examples": {
+         "suggestions_capped": {
+          "summary": "Today's address suggestions used",
+          "value": {
+           "type": "https://clearpostcode.co.uk/developers/docs/errors#suggestions_capped",
+           "title": "Today's address suggestions used",
+           "status": 429,
+           "detail": "Each business gets a day's suggestions in proportion to the addresses it holds, far more than its checkouts use. They open again at midnight UTC; meanwhile resolve the suggestions you have with /addresses/retrieve/{id} or list a postcode with /addresses?postcode=.",
+           "instance": "/v1/…",
+           "request_id": "8f1c2a7d9b3e4f60-LHR"
+          }
+         },
          "rate_limited": {
           "summary": "Too many requests",
           "value": {
@@ -7695,7 +7702,7 @@
      "Addresses"
     ],
     "summary": "Resolve a suggestion (early access)",
-    "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.",
+    "description": "The full PAF address for an address suggestion's id, ready to save on the order. Ids hold within the PAF edition that issued them; an older one answers not_found, so suggest again. Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.",
     "parameters": [
      {
       "name": "id",
@@ -8157,7 +8164,7 @@
      "Addresses"
     ],
     "summary": "One address by UDPRN (early access)",
-    "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted), with 50 free addresses for 90 days from its first lookup. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.",
+    "description": "The full PAF address for a UDPRN, Royal Mail's number for one delivery point (a stored address, re-checked). Early access: a key answers once the business it serves has Address lookup switched on in the dashboard (End User Terms accepted). The account's first business gets 50 free addresses to test with, for 90 days from its first lookup; businesses added later start with a pack. Join at clearpostcode.co.uk/address-lookup.\n\nBilling: 1 address credit when found. Works with publishable (browser) keys.",
     "parameters": [
      {
       "name": "udprn",
@@ -10302,28 +10309,14 @@
         "description": "Resolve with /addresses/retrieve/{id}."
        },
        "suggestion": {
-        "type": "string"
-       },
-       "udprn": {
-        "type": "string"
-       },
-       "umprn": {
-        "type": [
-         "string",
-         "null"
-        ]
-       },
-       "postcode": {
-        "type": "string"
+        "type": "string",
+        "description": "The line to show the customer."
        }
       },
       "required": [
        "kind",
        "id",
-       "suggestion",
-       "udprn",
-       "umprn",
-       "postcode"
+       "suggestion"
       ],
       "additionalProperties": false
      },
@@ -10350,12 +10343,6 @@
        },
        "count": {
         "type": "integer"
-       },
-       "postcode": {
-        "type": [
-         "string",
-         "null"
-        ]
        }
       },
       "required": [
@@ -10363,8 +10350,7 @@
        "id",
        "suggestion",
        "type",
-       "count",
-       "postcode"
+       "count"
       ],
       "additionalProperties": false
      }

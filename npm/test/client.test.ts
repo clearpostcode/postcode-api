@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   ClearPostcode,
-  OPERATIONS,
   VERSION,
   APIConnectionError,
   APIError,
@@ -18,6 +17,7 @@ import {
   type OperationId,
 } from "../src/index.ts";
 import { ClearPostcode as BrowserClearPostcode } from "../src/browser.ts";
+import { OPERATIONS } from "../src/generated.ts";
 import { Transport, rateLimitOf } from "../src/http.ts";
 
 type Doc = { paths: Record<string, Record<string, { operationId: string; responses: Record<string, { content?: Record<string, { example?: { data: unknown; meta: unknown } }> }> }>> };
@@ -336,6 +336,86 @@ test("the universal client refuses a secret key on a web page", () => {
     new ClearPostcode({ key: `cp_pub_${"f".repeat(32)}`, fetch: f.fetch });
   } finally {
     delete g.document;
+  }
+});
+
+test("an empty postcode, id or district is refused before any call", async () => {
+  const { cp, calls } = client(() => ok({}));
+  await assert.rejects(cp.postcodes.lookup(""), /getPostcode needs a postcode/);
+  await assert.rejects(cp.postcodes.validate("  "), TypeError);
+  await assert.rejects(cp.addresses.retrieve(""), /addressRetrieve needs a id/);
+  assert.equal(calls.length, 0);
+});
+
+test("fields: an empty list asks for the full record, as in Python", async () => {
+  const { cp, calls } = client(() => ok({ postcode: "M1 1AE", status: "live" }));
+  await cp.postcodes.lookup("M1 1AE", { fields: [] });
+  assert.equal(url(calls[0]!).search, "");
+});
+
+test("a bulk POST is never retried after a dropped connection or a 500, only on 429 and 503", async () => {
+  const body = { postcodes: ["M1 1AE"] };
+  const drop = client(() => {
+    throw new TypeError("socket hang up");
+  }, { maxRetries: 3 });
+  await assert.rejects(drop.cp.postcodes.bulk(body.postcodes), APIConnectionError);
+  assert.equal(drop.calls.length, 1);
+  const fail = client(() => problem(500, "server_error"), { maxRetries: 3 });
+  await assert.rejects(fail.cp.postcodes.bulk(body.postcodes), InternalServerError);
+  assert.equal(fail.calls.length, 1);
+  const seq = [problem(503, "service_unavailable", {}, { "retry-after": "0" }), ok([{ query: "M1 1AE", result: null }])];
+  const busy = client((_, n) => seq[n - 1]!);
+  await busy.cp.postcodes.bulk(body.postcodes);
+  assert.equal(busy.calls.length, 2);
+});
+
+test("a bulk call that fails part-way throws with the chunks already answered", async () => {
+  const { cp, calls } = client(async (req, n) => {
+    if (n === 2) return problem(402, "quota_exceeded");
+    const sent = ((await req.json()) as { postcodes: string[] }).postcodes;
+    return ok(sent.map((q) => ({ query: q, result: { postcode: q, status: "live" } })), { sent: sent.length, found: sent.length });
+  });
+  const e = await cp.postcodes.bulk(Array.from({ length: 150 }, (_, i) => `PC${i}`)).catch((x: unknown) => x);
+  assert.ok(e instanceof APIError && e.code === "quota_exceeded");
+  assert.equal(e.partial?.data.length, 100);
+  assert.equal(e.partial?.meta?.found, 100);
+  assert.equal(calls.length, 2);
+});
+
+test("bulk reverse counts the points that found postcodes", async () => {
+  const { cp } = client(() => ok([{ query: { latitude: 1, longitude: 1 }, result: [{ postcode: "X" }] }, { query: { latitude: 2, longitude: 2 }, result: [] }]));
+  const r = await cp.postcodes.bulkReverse([{ latitude: 1, longitude: 1 }, { latitude: 2, longitude: 2 }]);
+  assert.equal(r.meta?.found, 1);
+});
+
+test("iterators fetch nothing until read; a backoff never waits past maxRetryDelay", async () => {
+  const { cp, calls } = client(() => ok([], { next_cursor: null }));
+  const it = cp.outcodes.allPostcodes("SW1A");
+  const all = cp.addresses.allByPostcode("AB10 1AA");
+  assert.equal(calls.length, 0);
+  for await (const _ of it) void _;
+  for await (const _ of all) void _;
+  assert.equal(calls.length, 2);
+  const slow = client(() => problem(503, "service_unavailable"), { maxRetries: 2, maxRetryDelay: 20 });
+  const t0 = Date.now();
+  await assert.rejects(slow.cp.postcodes.validate("M1 1AE"), InternalServerError);
+  assert.ok(Date.now() - t0 < 300, `waited ${Date.now() - t0} ms`);
+});
+
+test("redirects are never followed with the key; unknown problem codes come through", async () => {
+  const { cp, calls } = client(() => problem(400, "a_code_from_next_year"));
+  const e = await cp.postcodes.validate("M1 1AE").catch((x: unknown) => x);
+  assert.equal(calls[0]!.redirect, "error");
+  assert.ok(e instanceof BadRequestError && e.code === "a_code_from_next_year");
+});
+
+test("a web worker counts as a browser: a secret key is refused there", () => {
+  const nav = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  Object.defineProperty(globalThis, "navigator", { value: { userAgent: "Mozilla/5.0 (X11; Linux x86_64) Chrome/140.0" }, configurable: true });
+  try {
+    assert.throws(() => new ClearPostcode({ key: `cp_live_${"g".repeat(32)}` }), /stay on your server/);
+  } finally {
+    if (nav) Object.defineProperty(globalThis, "navigator", nav);
   }
 });
 

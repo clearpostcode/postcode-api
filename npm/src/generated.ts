@@ -317,10 +317,8 @@ export interface SuggestedAddress {
   kind: "address";
   /** Resolve with /addresses/retrieve/{id}. */
   id: string;
+  /** The line to show the customer. */
   suggestion: string;
-  udprn: string;
-  umprn: string | null;
-  postcode: string;
 }
 
 export interface SuggestedContainer {
@@ -330,7 +328,6 @@ export interface SuggestedContainer {
   suggestion: string;
   type: "postcode" | "sector" | "street" | "building";
   count: number;
-  postcode: string | null;
 }
 
 export interface AddressMeta {
@@ -424,6 +421,7 @@ export type ProblemCode =
   | "secret_key_in_url"
   | "server_error"
   | "service_unavailable"
+  | "suggestions_capped"
   | "unknown_parameter";
 
 /** Each operation's answer: the type of `data` and of `meta`. */

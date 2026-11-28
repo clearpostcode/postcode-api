@@ -72,6 +72,48 @@ class Postcode(TypedDict):
     deprivation: NotRequired[PostcodeDeprivation | None]
 
 
+class PostcodeRecord(TypedDict):
+    """A full postcode record: every field, as a lookup without fields answers."""
+
+    #: Canonical form, e.g. "SW1A 1AA".
+    postcode: str
+    status: Literal["live", "terminated"]
+    outcode: str
+    incode: str
+    sector: str
+    district: str
+    area: str
+    #: YYYY-MM
+    introduced: str | None
+    #: YYYY-MM
+    terminated: str | None
+    #: For a terminated postcode: the nearest live postcode.
+    replaced_by: str | None
+    user_type: Literal["small", "large"]
+    location: PostcodeLocation
+    country: Named | None
+    region: Named | None
+    county: Named | None
+    county_electoral_division: Named | None
+    local_authority: Named | None
+    ward: Named | None
+    parish: Named | None
+    constituency: Named | None
+    police_force: Named | None
+    nhs_region: Named | None
+    icb: Named | None
+    sub_icb: Named | None
+    national_park: Named | None
+    built_up_area: Named | None
+    travel_to_work_area: Named | None
+    lsoa: Named | None
+    msoa: Named | None
+    output_area: str | None
+    rural_urban: PostcodeRuralUrban | None
+    area_classification: str | None
+    deprivation: PostcodeDeprivation | None
+
+
 class Validation(TypedDict):
     input: str
     postcode: str | None
@@ -323,10 +365,8 @@ class SuggestedAddress(TypedDict):
     kind: Literal["address"]
     #: Resolve with /addresses/retrieve/{id}.
     id: str
+    #: The line to show the customer.
     suggestion: str
-    udprn: str
-    umprn: str | None
-    postcode: str
 
 
 class SuggestedContainer(TypedDict):
@@ -336,7 +376,6 @@ class SuggestedContainer(TypedDict):
     suggestion: str
     type: Literal["postcode", "sector", "street", "building"]
     count: int
-    postcode: str | None
 
 
 class AddressMeta(TypedDict):
@@ -469,6 +508,7 @@ ProblemCode = Literal[
     "secret_key_in_url",
     "server_error",
     "service_unavailable",
+    "suggestions_capped",
     "unknown_parameter",
 ]
 """Every problem type the API answers: the fragment of a problem's `type` URI."""
@@ -497,7 +537,6 @@ OPERATIONS: dict[str, tuple[Literal["GET", "POST"], str, tuple[str, ...]]] = {
 
 __all__ = [
     "BASE_URL",
-    "OPERATIONS",
     "Address",
     "AddressMeta",
     "AddressSuggestion",
@@ -526,6 +565,7 @@ __all__ = [
     "PostcodeDeprivation",
     "PostcodeField",
     "PostcodeLocation",
+    "PostcodeRecord",
     "PostcodeRuralUrban",
     "PostcodeSuggestion",
     "Problem",

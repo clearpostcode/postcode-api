@@ -21,6 +21,7 @@ from ._generated import (
     Place,
     Postcode,
     PostcodeField,
+    PostcodeRecord,
     ReverseItem,
     Sector,
     Suggestion,
@@ -44,7 +45,11 @@ def _fields(fields: Sequence[PostcodeField] | None) -> str | None:
     return ",".join(fields) if fields else None
 
 
-def lookup(postcode: str, fields: Sequence[PostcodeField] | None) -> Call[Postcode, Meta]:
+def lookup(postcode: str) -> Call[PostcodeRecord, Meta]:
+    return Call("getPostcode", path={"postcode": postcode})
+
+
+def lookup_fields(postcode: str, fields: Sequence[PostcodeField]) -> Call[Postcode, Meta]:
     return Call("getPostcode", path={"postcode": postcode}, query={"fields": _fields(fields)})
 
 

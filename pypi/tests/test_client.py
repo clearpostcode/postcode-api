@@ -14,7 +14,6 @@ import pytest
 
 import clearpostcode
 from clearpostcode import (
-    OPERATIONS,
     APIConnectionError,
     APIError,
     APITimeoutError,
@@ -30,6 +29,7 @@ from clearpostcode import (
     _base,
 )
 from clearpostcode._base import Call, Config, rate_limit_of
+from clearpostcode._generated import OPERATIONS
 
 ROOT = Path(__file__).resolve().parents[2]
 DOC = json.loads((ROOT / "openapi/openapi.json").read_text())
@@ -383,9 +383,99 @@ def test_results_are_typed_dataclasses() -> None:
     r = cp.postcodes.lookup("M1 1AE")
     assert isinstance(r, Result)
     with pytest.raises(AttributeError):
-        r.data = {"postcode": "X", "status": "live"}  # type: ignore[misc]
+        r.data = {"postcode": "X", "status": "live"}  # type: ignore[misc, typeddict-item]
 
 
 def test_version_matches_pyproject() -> None:
     pyproject = tomllib.loads((ROOT / "pypi/pyproject.toml").read_text())
     assert clearpostcode.__version__ == pyproject["project"]["version"]
+
+
+def test_an_empty_postcode_or_id_is_refused_before_any_call() -> None:
+    cp, rec = client(lambda r: ok({}))
+    with pytest.raises(TypeError, match="getPostcode needs a postcode"):
+        cp.postcodes.lookup("")
+    with pytest.raises(TypeError):
+        cp.postcodes.validate("  ")
+    with pytest.raises(TypeError, match="addressRetrieve needs a id"):
+        cp.addresses.retrieve("")
+    assert rec.calls == []
+
+
+def test_a_bulk_post_is_retried_only_on_429_and_503() -> None:
+    def drop(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadError("socket closed", request=request)
+
+    a, rec_a = client(drop, max_retries=3)
+    with pytest.raises(APIConnectionError):
+        a.postcodes.bulk(["M1 1AE"])
+    assert len(rec_a.calls) == 1
+    b, rec_b = client(lambda r: problem(500, "server_error"), max_retries=3)
+    with pytest.raises(InternalServerError):
+        b.postcodes.bulk(["M1 1AE"])
+    assert len(rec_b.calls) == 1
+    answers = iter(
+        [problem(503, "service_unavailable", {"retry-after": "0"}), ok([{"query": "M1 1AE", "result": None}])]
+    )
+    c, rec_c = client(lambda r: next(answers))
+    c.postcodes.bulk(["M1 1AE"])
+    assert len(rec_c.calls) == 2
+
+
+def test_a_bulk_call_that_fails_part_way_raises_with_the_chunks_already_answered() -> None:
+    count = 0
+
+    def answer(r: httpx.Request) -> httpx.Response:
+        nonlocal count
+        count += 1
+        if count == 2:
+            return problem(402, "quota_exceeded")
+        sent = json.loads(r.content)["postcodes"]
+        return ok(
+            [{"query": q, "result": {"postcode": q, "status": "live"}} for q in sent], sent=len(sent), found=len(sent)
+        )
+
+    cp, _ = client(answer)
+    with pytest.raises(clearpostcode.QuotaExceededError) as caught:
+        cp.postcodes.bulk([f"PC{i}" for i in range(150)])
+    partial = caught.value.partial
+    assert (
+        partial is not None and len(partial.data) == 100 and partial.meta is not None and partial.meta["found"] == 100
+    )
+
+
+def test_bulk_reverse_counts_the_points_that_found_postcodes() -> None:
+    cp, _ = client(lambda r: ok([{"query": {}, "result": [{"postcode": "X"}]}, {"query": {}, "result": []}]))
+    r = cp.postcodes.bulk_reverse([{"latitude": 1.0, "longitude": 1.0}, {"latitude": 2.0, "longitude": 2.0}])
+    assert r.meta is not None and r.meta["found"] == 1
+
+
+def test_backoff_never_waits_past_max_retry_delay(monkeypatch: pytest.MonkeyPatch) -> None:
+    waits: list[float] = []
+    monkeypatch.setattr(_base, "backoff", lambda attempt: 30.0)
+    monkeypatch.setattr("time.sleep", waits.append)
+    cp, _ = client(lambda r: problem(503, "service_unavailable"), max_retries=2, max_retry_delay=0.5)
+    with pytest.raises(InternalServerError):
+        cp.postcodes.validate("M1 1AE")
+    assert waits == [0.5, 0.5]
+
+
+def test_odd_headers_and_new_codes_are_taken_in_stride() -> None:
+    cp, _ = client(lambda r: problem(503, "service_unavailable", {"retry-after": "soon"}), max_retries=0)
+    with pytest.raises(InternalServerError) as caught:
+        cp.postcodes.validate("M1 1AE")
+    assert caught.value.retry_after is None
+    assert rate_limit_of(
+        httpx.Headers({"ratelimit-limit": "0", "ratelimit-remaining": "0"})
+    ) == clearpostcode.RateLimit(None, 0, 0, None)
+    n, _ = client(lambda r: problem(400, "a_code_from_next_year"))
+    with pytest.raises(BadRequestError) as err:
+        n.postcodes.validate("M1 1AE")
+    assert err.value.code == "a_code_from_next_year"
+
+
+def test_fields_empty_means_the_full_record_and_operations_stay_private() -> None:
+    cp, rec = client(lambda r: ok({"postcode": "M1 1AE", "status": "live"}))
+    cp.postcodes.lookup("M1 1AE", fields=[])
+    assert rec.calls[0].url.query == b""
+    assert "OPERATIONS" not in clearpostcode.__all__

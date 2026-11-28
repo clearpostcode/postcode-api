@@ -56,6 +56,9 @@ export interface Call {
 }
 
 const RETRY_STATUS = new Set([408, 429, 500, 502, 503, 504]);
+/** A POST (a bulk call) is retried only on answers that say nothing was billed: never after a timeout or a dropped
+ *  connection, when the API may have answered and billed it. */
+const RETRY_POST = new Set([429, 503]);
 
 /** Seconds from a Retry-After header: delta-seconds or an HTTP date. */
 function retryAfterOf(h: Headers): number | null {
@@ -115,7 +118,11 @@ export class Transport {
   /** The URL for an operation: path parameters encoded into the path, then the query it takes. */
   url(id: OperationId, call: Call): string {
     const op = OPERATIONS[id];
-    const path = op.path.replace(/\{(\w+)\}/g, (_, k: string) => encodeURIComponent(String(call.path?.[k] ?? "").trim()));
+    const path = op.path.replace(/\{(\w+)\}/g, (_, k: string) => {
+      const v = String(call.path?.[k] ?? "").trim();
+      if (!v) throw new TypeError(`${id} needs a ${k}`);
+      return encodeURIComponent(v);
+    });
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(call.query ?? {})) {
       if (v === undefined || v === null) continue;
@@ -127,13 +134,16 @@ export class Transport {
     return `${this.config.baseUrl}${path}${s ? `?${s}` : ""}`;
   }
 
-  /** Make the call, retrying 429s, 5xx answers, timeouts and dropped connections with backoff. */
+  /** Make the call, retrying 429s, 5xx answers, timeouts and dropped connections with backoff (a POST: 429 and 503
+   *  only). No wait is longer than maxRetryDelay: a longer Retry-After is thrown at once. */
   async request<I extends OperationId>(id: I, call: Call = {}, options: RequestOptions = {}): Promise<Result<OperationTypes[I]["data"], OperationTypes[I]["meta"]>> {
     const url = this.url(id, call);
     const headers: Record<string, string> = { accept: "application/json", ...this.config.headers };
     if (this.config.key && !this.config.keyInQuery) headers["x-api-key"] = this.config.key;
     if (call.body !== undefined) headers["content-type"] = "application/json";
-    const init: RequestInit = { method: OPERATIONS[id].method, headers, body: call.body === undefined ? undefined : JSON.stringify(call.body) };
+    const method = OPERATIONS[id].method;
+    // redirect: "error": the key header never follows a redirect to another host.
+    const init: RequestInit = { method, headers, redirect: "error", body: call.body === undefined ? undefined : JSON.stringify(call.body) };
     const retries = options.maxRetries ?? this.config.maxRetries;
     for (let attempt = 0; ; attempt++) {
       let wait: number;
@@ -156,15 +166,15 @@ export class Transport {
         }
         const after = retryAfterOf(response.headers);
         const error = errorFor(response.status, problem, response.headers, after);
-        if (!RETRY_STATUS.has(response.status) || attempt >= retries) throw error;
+        if (!(method === "POST" ? RETRY_POST : RETRY_STATUS).has(response.status) || attempt >= retries) throw error;
         const limit = rateLimitOf(response.headers);
         const advised = after ?? (response.status === 429 && limit?.remaining === 0 ? limit.reset : null);
         if (advised !== null && advised * 1000 > this.config.maxRetryDelay) throw error;
-        wait = advised !== null ? advised * 1000 : backoff(attempt);
+        wait = advised !== null ? advised * 1000 : Math.min(backoff(attempt), this.config.maxRetryDelay);
       } catch (e) {
         if (e instanceof APIError || options.signal?.aborted) throw e;
-        if (!(e instanceof APIConnectionError) || attempt >= retries) throw e;
-        wait = backoff(attempt);
+        if (!(e instanceof APIConnectionError) || method === "POST" || attempt >= retries) throw e;
+        wait = Math.min(backoff(attempt), this.config.maxRetryDelay);
       }
       await sleep(wait, options.signal);
     }

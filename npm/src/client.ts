@@ -2,6 +2,7 @@ import { BASE_URL, type Area, type BulkItem, type Distance, type District, type 
 import { type RateLimit, type RequestOptions, type Result, Transport, type TransportConfig } from "./http.ts";
 import { type Page, pageOf, every } from "./page.ts";
 import { Addresses } from "./addresses.ts";
+import { ClearPostcodeError } from "./errors.ts";
 
 /** Options for a client. */
 export interface ClientOptions {
@@ -41,7 +42,8 @@ export interface ReversePoint {
 /** A bulk call's answer, sent in chunks the API takes (100 postcodes, 20 points) and joined in the order sent. */
 export interface BulkResult<T> {
   readonly data: T[];
-  /** The last chunk's meta, with `sent` and `found` added up over every chunk. Null for an empty list. */
+  /** The last chunk's meta, with `sent` and `found` added up over every chunk. Null for an empty list. A chunk that
+   *  fails throws its error with `partial` holding what the chunks before it answered. */
   readonly meta: Meta | null;
   /** One id per chunk. */
   readonly requestIds: (string | null)[];
@@ -51,21 +53,34 @@ export interface BulkResult<T> {
 export const BULK_POSTCODES = 100;
 export const BULK_POINTS = 20;
 
-/** Send `items` in chunks of `size`, one after another, and join the answers. */
-async function chunked<T, R>(items: readonly T[], size: number, send: (chunk: T[]) => Promise<Result<R[], Meta>>): Promise<BulkResult<R>> {
+/** Did an item find anything: a bulk lookup's record, a bulk reverse point's postcodes. */
+const found = (item: { result: unknown }) => (Array.isArray(item.result) ? item.result.length > 0 : item.result !== null);
+
+/** Send `items` in chunks of `size`, one after another, and join the answers. A chunk that fails throws its error
+ *  with `partial` holding the chunks already answered (and billed). */
+async function chunked<T, R extends { result: unknown }>(items: readonly T[], size: number, send: (chunk: T[]) => Promise<Result<R[], Meta>>): Promise<BulkResult<R>> {
   const data: R[] = [];
   const requestIds: (string | null)[] = [];
   let meta = null as Meta | null;
   let rateLimit: RateLimit | null = null;
   for (let i = 0; i < items.length; i += size) {
-    const r = await send(items.slice(i, i + size));
+    let r: Result<R[], Meta>;
+    try {
+      r = await send(items.slice(i, i + size));
+    } catch (e) {
+      if (e instanceof ClearPostcodeError) e.partial = { data, meta, requestIds };
+      throw e;
+    }
     data.push(...r.data);
     requestIds.push(r.requestId);
     rateLimit = r.rateLimit;
-    meta = { ...r.meta, sent: (meta?.sent ?? 0) + (r.meta.sent ?? r.data.length), found: (meta?.found ?? 0) + (r.meta.found ?? 0) };
+    meta = { ...r.meta, sent: (meta?.sent ?? 0) + (r.meta.sent ?? r.data.length), found: (meta?.found ?? 0) + (r.meta.found ?? r.data.filter(found).length) };
   }
   return { data, meta, requestIds, rateLimit };
 }
+
+/** `fields` as the API takes it: comma-separated, or left out (an empty list is the full record). */
+const fieldsOf = (fields: readonly string[] | undefined) => (fields?.length ? fields.join(",") : undefined);
 
 /** Postcodes: lookup, validation, nearest, reverse geocoding, bulk, autocomplete and distance. */
 export class Postcodes {
@@ -76,10 +91,10 @@ export class Postcodes {
   }
 
   /** Everything about one postcode (1 lookup when found; not found is free). `fields` trims the record. */
-  lookup(postcode: string, options?: RequestOptions): Promise<Result<PostcodeRecord, Meta>>;
-  lookup<F extends PostcodeField>(postcode: string, options: RequestOptions & { fields: readonly F[] }): Promise<Result<PostcodeWith<F>, Meta>>;
-  lookup(postcode: string, options: RequestOptions & { fields?: readonly PostcodeField[] } = {}): Promise<Result<Postcode, Meta>> {
-    return this.#t.request("getPostcode", { path: { postcode }, query: { fields: options.fields?.join(",") } }, options);
+  lookup(postcode: string, params?: { fields?: undefined }, options?: RequestOptions): Promise<Result<PostcodeRecord, Meta>>;
+  lookup<F extends PostcodeField>(postcode: string, params: { fields: readonly F[] }, options?: RequestOptions): Promise<Result<PostcodeWith<F>, Meta>>;
+  lookup(postcode: string, params: { fields?: readonly PostcodeField[] } = {}, options: RequestOptions = {}): Promise<Result<Postcode, Meta>> {
+    return this.#t.request("getPostcode", { path: { postcode }, query: { fields: fieldsOf(params.fields) } }, options);
   }
 
   /** Is the format valid, is it in the current edition, is it live? Never throws for a wrong postcode. */
@@ -88,8 +103,8 @@ export class Postcodes {
   }
 
   /** Live postcodes nearest this one, nearest first. */
-  nearest(postcode: string, options: RequestOptions & { radius?: number; limit?: number } = {}): Promise<Result<Near[], Meta>> {
-    return this.#t.request("nearestToPostcode", { path: { postcode }, query: { radius: options.radius, limit: options.limit } }, options);
+  nearest(postcode: string, params: { radius?: number; limit?: number } = {}, options: RequestOptions = {}): Promise<Result<Near[], Meta>> {
+    return this.#t.request("nearestToPostcode", { path: { postcode }, query: { radius: params.radius, limit: params.limit } }, options);
   }
 
   /** Live postcodes nearest a point (reverse geocoding), out to 20 km. */
@@ -98,10 +113,10 @@ export class Postcodes {
   }
 
   /** Any number of postcodes, sent 100 a call, in the order given. Needs a secret key. */
-  bulk(postcodes: readonly string[], options?: RequestOptions): Promise<BulkResult<BulkLookupItem<PostcodeRecord>>>;
-  bulk<F extends PostcodeField>(postcodes: readonly string[], options: RequestOptions & { fields: readonly F[] }): Promise<BulkResult<BulkLookupItem<PostcodeWith<F>>>>;
-  bulk(postcodes: readonly string[], options: RequestOptions & { fields?: readonly PostcodeField[] } = {}): Promise<BulkResult<BulkItem>> {
-    return chunked(postcodes, BULK_POSTCODES, (chunk) => this.#t.request("bulkLookup", { query: { fields: options.fields?.join(",") }, body: { postcodes: chunk } }, options));
+  bulk(postcodes: readonly string[], params?: { fields?: undefined }, options?: RequestOptions): Promise<BulkResult<BulkLookupItem<PostcodeRecord>>>;
+  bulk<F extends PostcodeField>(postcodes: readonly string[], params: { fields: readonly F[] }, options?: RequestOptions): Promise<BulkResult<BulkLookupItem<PostcodeWith<F>>>>;
+  bulk(postcodes: readonly string[], params: { fields?: readonly PostcodeField[] } = {}, options: RequestOptions = {}): Promise<BulkResult<BulkItem>> {
+    return chunked(postcodes, BULK_POSTCODES, (chunk) => this.#t.request("bulkLookup", { query: { fields: fieldsOf(params.fields) }, body: { postcodes: chunk } }, options));
   }
 
   /** Nearest postcodes for any number of points, sent 20 a call. Needs a secret key. */
@@ -112,8 +127,8 @@ export class Postcodes {
   }
 
   /** Postcodes (or districts, for 1 to 4 characters) that start with what has been typed. Free. */
-  autocomplete(q: string, options: RequestOptions & { limit?: number } = {}): Promise<Result<Suggestion[], Meta>> {
-    return this.#t.request("autocomplete", { query: { q, limit: options.limit } }, options);
+  autocomplete(q: string, params: { limit?: number } = {}, options: RequestOptions = {}): Promise<Result<Suggestion[], Meta>> {
+    return this.#t.request("autocomplete", { query: { q, limit: params.limit } }, options);
   }
 
   /** Straight-line distance between two postcodes, in kilometres and miles, with the bearing. */
@@ -136,13 +151,13 @@ export class Outcodes {
   }
 
   /** One page of the district's live postcodes (1 lookup a page). Needs a secret key. */
-  postcodes(outcode: string, options: RequestOptions & { cursor?: string; limit?: number } = {}): Promise<Page<OutcodePostcode, Meta>> {
-    return pageOf(this.#t, "outcodePostcodes", { path: { outcode }, query: { limit: options.limit } }, "cursor", options.cursor ?? null, options);
+  postcodes(outcode: string, params: { cursor?: string; limit?: number } = {}, options: RequestOptions = {}): Promise<Page<OutcodePostcode, Meta>> {
+    return pageOf(this.#t, "outcodePostcodes", { path: { outcode }, query: { limit: params.limit } }, "cursor", params.cursor ?? null, options);
   }
 
   /** Every live postcode in the district, page after page. Needs a secret key. */
-  allPostcodes(outcode: string, options: RequestOptions & { limit?: number } = {}): AsyncGenerator<OutcodePostcode> {
-    return every(this.postcodes(outcode, options));
+  allPostcodes(outcode: string, params: { limit?: number } = {}, options: RequestOptions = {}): AsyncGenerator<OutcodePostcode> {
+    return every(() => this.postcodes(outcode, params, options));
   }
 }
 
@@ -183,8 +198,8 @@ export class Places {
   }
 
   /** Cities, towns, villages and neighbourhoods whose name starts with `q`; accents optional. */
-  search(q: string, options: RequestOptions & { limit?: number } = {}): Promise<Result<Place[], Meta>> {
-    return this.#t.request("places", { query: { q, limit: options.limit } }, options);
+  search(q: string, params: { limit?: number } = {}, options: RequestOptions = {}): Promise<Result<Place[], Meta>> {
+    return this.#t.request("places", { query: { q, limit: params.limit } }, options);
   }
 }
 

@@ -40,7 +40,7 @@
     "test": "node ../scripts/generate.mjs --check && tsc -p tsconfig.json && node --test test/*.test.ts",
     "check:package": "npm run build && npx --yes publint@0.3 && npx --yes @arethetypeswrong/cli@0.18 --pack . --profile node16",
     "smoke": "npm run build && node scripts/smoke.mjs",
-    "prepublishOnly": "npm test && npm run build"
+    "prepublishOnly": "node ../scripts/generate.mjs --live && npm test && npm run build"
   },
   "keywords": [
     "postcode",

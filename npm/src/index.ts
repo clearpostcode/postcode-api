@@ -7,7 +7,7 @@ import { Client, type ClientOptions, transportConfig } from "./client.ts";
 import { ClearPostcodeError } from "./errors.ts";
 import { VERSION } from "./version.ts";
 
-type Runtime = { process?: { env?: Record<string, string | undefined>; versions?: Record<string, string | undefined> }; document?: unknown; Deno?: { version?: { deno?: string } } };
+type Runtime = { process?: { env?: Record<string, string | undefined>; versions?: Record<string, string | undefined> }; document?: unknown; navigator?: { userAgent?: string }; Deno?: { version?: { deno?: string } } };
 const g = globalThis as Runtime;
 
 /** The runtime, for the user agent: node/24.12.0, bun/1.3.0, deno/2.5.0. */
@@ -25,7 +25,8 @@ function runtime(): string {
 export class ClearPostcode extends Client {
   constructor(options: ClientOptions = {}) {
     const key = (options.key === undefined ? g.process?.env?.CLEAR_POSTCODE_KEY : options.key) || null;
-    const inBrowser = typeof g.document !== "undefined";
+    // A web page or a web worker: browsers' user agents start "Mozilla/"; Node, Bun, Deno and Workers' do not.
+    const inBrowser = typeof g.document !== "undefined" || /^Mozilla\//.test(g.navigator?.userAgent ?? "");
     if (inBrowser && key?.startsWith("cp_live_")) throw new ClearPostcodeError("Secret keys (cp_live_) stay on your server. In a browser, use a publishable key (cp_pub_) locked to your domain, with clearpostcode/browser.");
     super(transportConfig(options, key, { keyInQuery: false, headers: inBrowser ? {} : { "user-agent": `clearpostcode-js/${VERSION} ${runtime()}` } }));
   }
@@ -34,9 +35,10 @@ export class ClearPostcode extends Client {
 export default ClearPostcode;
 export { VERSION };
 export * from "./errors.ts";
-export * from "./generated.ts";
+export type * from "./generated.ts";
+export { BASE_URL } from "./generated.ts";
 export type { ClientOptions, PostcodeRecord, PostcodeField, PostcodeWith, BulkLookupItem, BulkResult, ReversePoint, Postcodes, Outcodes, Sectors, Areas, Places, Account } from "./client.ts";
 export { BULK_POSTCODES, BULK_POINTS } from "./client.ts";
-export type { Addresses, AddressSuggestOptions } from "./addresses.ts";
+export type { Addresses, AddressSuggestParams } from "./addresses.ts";
 export type { Page } from "./page.ts";
 export type { RateLimit, RequestOptions, Result } from "./http.ts";
