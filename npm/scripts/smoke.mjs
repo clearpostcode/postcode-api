@@ -44,6 +44,10 @@ const blocks = [...readme.matchAll(/```js( \w+)?\n([\s\S]*?)```/g)];
 for (const [i, b] of blocks.entries()) {
   const tag = b[1]?.trim() ?? "";
   const name = `README block ${i + 1}${tag ? ` (${tag})` : ""}: ${b[2].split("\n").find((l) => /(cp|\))\.\w+\.\w+\(/.test(l) && !l.startsWith("//"))?.trim().slice(0, 60)}`;
+  if (tag === "dom") {
+    console.log(`skip  ${name} (runs in a web page: test/widget.test.ts and examples/widget.html cover it)`);
+    continue;
+  }
   if (tag === "secret" && !secret) {
     console.log(`skip  ${name} (needs a secret key in CLEAR_POSTCODE_KEY)`);
     continue;

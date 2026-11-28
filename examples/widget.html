@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClearPostcode finder: demo</title>
+  <!-- From npm: https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.css and .../widget.js -->
+  <link rel="stylesheet" href="../npm/dist/widget.css">
+  <style>
+    :root { color-scheme: light; --ink: #14213d; --muted: #5b6578; --line: #d8deea; --brand: #1f5eff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: #f6f8fc; }
+    main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 64px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+    h1 { margin: 0 0 12px; font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; }
+    .lede { margin: 0 0 24px; font-size: 19px; color: var(--muted); }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; box-shadow: 0 12px 32px rgba(20, 33, 61, 0.06); }
+    .card h2 { margin: 0 0 4px; font-size: 20px; }
+    .card p.sub { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
+    label { display: block; margin: 0 0 6px; font-weight: 600; font-size: 14px; }
+    .field { margin: 0 0 16px; position: relative; }
+    input { width: 100%; padding: 12px 14px; font: inherit; color: inherit; background: #fff; border: 1px solid #c3cbdb; border-radius: 10px; }
+    input:focus-visible { outline: 3px solid rgba(31, 94, 255, 0.35); outline-offset: 1px; border-color: var(--brand); }
+    input[readonly] { background: #f6f8fc; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+    ul.points { margin: 0 0 24px; padding: 0; list-style: none; display: grid; gap: 10px; }
+    ul.points li { padding-left: 28px; position: relative; }
+    ul.points li::before { content: "✓"; position: absolute; left: 0; color: #0a7a45; font-weight: 700; }
+    pre { margin: 0; padding: 18px; overflow-x: auto; background: #14213d; color: #e8edf7; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+    h3 { margin: 28px 0 10px; font-size: 16px; }
+    a { color: var(--brand); }
+    @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); padding: 28px 16px 48px; gap: 28px; } h1 { font-size: 30px; } .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h1>A postcode finder on any form, in one line</h1>
+      <p class="lede">Type a postcode: it is formatted as you go, checked against every UK postcode, and the council, county and constituency fill themselves.</p>
+      <ul class="points">
+        <li>Suggestions as you type, full keyboard use and screen-reader announcements</li>
+        <li>A clear message for a mistyped, retired or brand-new postcode</li>
+        <li>Address lookup on Royal Mail PAF: with a key that has it switched on, the same box finds the full address</li>
+        <li>About 8 KB gzipped, no dependencies, themed with CSS variables</li>
+      </ul>
+      <h3>Add it to your form</h3>
+      <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.js"
+        data-key="cp_pub_..." defer&gt;&lt;/script&gt;</code></pre>
+      <p class="hint">Every input with <code>autocomplete="postal-code"</code> (or <code>data-clearpostcode="postcode"</code>) gets the finder. Mark other fields with <code>data-clearpostcode="council"</code>, <code>"county"</code>, <code>"constituency"</code> and so on. The key is optional in postcode mode. Docs: <a href="https://github.com/clearpostcode/postcode-api/tree/main/npm#postcode-finder">the finder's guide</a>.</p>
+    </section>
+    <form class="card" autocomplete="on" onsubmit="event.preventDefault()">
+      <h2>Delivery address</h2>
+      <p class="sub" id="mode-note">Postcode mode, no key: try SW1A 1AA, AB1 0AA (retired) or a typo.</p>
+      <div class="field">
+        <label for="postcode">Postcode</label>
+        <input id="postcode" name="postcode" autocomplete="postal-code" placeholder="e.g. SW1A 1AA" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="line1">Address line 1</label>
+        <input id="line1" name="line1" autocomplete="address-line1">
+      </div>
+      <div class="field">
+        <label for="line2">Address line 2</label>
+        <input id="line2" name="line2" autocomplete="address-line2">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="town">Town or city</label>
+          <input id="town" name="town" autocomplete="address-level2">
+        </div>
+        <div class="field">
+          <label for="county">County</label>
+          <input id="county" name="county" data-clearpostcode="county">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="council">Council</label>
+          <input id="council" name="council" data-clearpostcode="council" readonly>
+        </div>
+        <div class="field">
+          <label for="constituency">Constituency</label>
+          <input id="constituency" name="constituency" data-clearpostcode="constituency" readonly>
+        </div>
+      </div>
+    </form>
+  </main>
+  <!-- data-auto="false" so the demo can take ?key=cp_pub_... from the address bar; on your site, put the key on the tag. -->
+  <script src="../npm/dist/widget.js" data-auto="false"></script>
+  <script>
+    const key = new URLSearchParams(location.search).get("key") || undefined;
+    const base = new URLSearchParams(location.search).get("api") || undefined;
+    if (key) document.getElementById("mode-note").textContent = "With your key: type a postcode or the start of an address (Address lookup answers when your account has it switched on).";
+    ClearPostcodeFinder.watch({ key, baseUrl: base });
+  </script>
+</body>
+</html>

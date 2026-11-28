@@ -1,5 +1,17 @@
 # What's new
 
+## JavaScript 2.1.0 (28 November 2026): the postcode finder
+
+- **A postcode and address finder for any form, in one script tag.** As the customer types, it formats the postcode,
+  suggests postcodes, checks the postcode and fills the council, county, constituency and more. A mistyped, retired or
+  brand-new postcode gets a clear message, and a retired one offers its live replacement in one click.
+- **Address lookup in the same box.** With a publishable key whose account has Address lookup, the customer types a
+  postcode or the start of an address, picks it, and the address fields fill with Royal Mail's own lines.
+- **Built for every shopper:** an ARIA combobox with full keyboard use and screen-reader announcements, a light theme
+  you can restyle with CSS variables, no animation, and about 8 KB gzipped with no dependencies.
+- **Anywhere you build:** `clearpostcode/widget` for bundlers, `<PostcodeFinder>` and `usePostcodeFinder()` in
+  `clearpostcode/react`, and `dist/widget.js` with `dist/widget.css` to serve from your own domain or a CDN.
+
 ## SDKs 2.0.0 (28 November 2026): npm and PyPI
 
 The ClearPostcode SDKs, rebuilt to the standard of the best API clients, on the API's tightened contract.

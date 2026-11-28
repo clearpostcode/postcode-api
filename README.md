@@ -29,6 +29,7 @@ to your domains, safe in a browser). Every answer is `{ data, meta }`; every err
 | [`wordpress/clear-postcode`](wordpress/clear-postcode) | The WordPress and WooCommerce plugin |
 | [`postman`](postman) | The Postman collection |
 | [`openapi`](openapi) | The OpenAPI document both SDKs are generated from |
+| [`examples`](examples) | The postcode finder demo (runs without a key) |
 | [`server.json`](server.json) | The MCP registry entry |
 
 ## Use it in code
@@ -61,6 +62,18 @@ Both cover every endpoint (postcodes, districts, sectors, areas, places, usage a
 generated from the OpenAPI document, typed errors carrying the `request_id`, retries that honour `Retry-After` and the
 rate-limit headers, timeouts, cursor pagination and bulk calls of any size. Per-package guides: [npm](npm/README.md) ·
 [PyPI](pypi/README.md). What's new: [CHANGELOG](CHANGELOG.md).
+
+## Add a postcode finder to any form
+
+One script tag gives every postcode field a finder: it formats and checks the postcode as it is typed, fills the
+council, county and constituency, and, with Address lookup on your account, finds the full address. About 8 KB
+gzipped, accessible, themeable. Guide: [npm/README.md#postcode-finder](npm/README.md#postcode-finder) · demo:
+[`examples/widget.html`](examples/widget.html).
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.css">
+<script src="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.js" data-key="cp_pub_..." defer></script>
+```
 
 ## Use it in your assistant
 

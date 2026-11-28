@@ -1,7 +1,7 @@
 {
   "name": "clearpostcode",
-  "version": "2.0.0",
-  "description": "UK postcode lookup API client: validate, autocomplete, nearest, reverse geocode, distance, council, ward and constituency, plus Royal Mail address lookup. Typed, retries built in, no dependencies.",
+  "version": "2.1.0",
+  "description": "UK postcode lookup API client and drop-in postcode and address finder: validate, autocomplete, nearest, reverse geocode, distance, council, ward and constituency, plus Royal Mail address lookup. Typed, retries built in, no dependencies.",
   "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -27,9 +27,33 @@
         "default": "./dist/cjs/browser.js"
       }
     },
+    "./widget": {
+      "import": {
+        "types": "./dist/esm/widget/index.d.ts",
+        "default": "./dist/esm/widget/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/widget/index.d.ts",
+        "default": "./dist/cjs/widget/index.js"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/esm/react.d.ts",
+        "default": "./dist/esm/react.js"
+      },
+      "require": {
+        "types": "./dist/cjs/react.d.ts",
+        "default": "./dist/cjs/react.js"
+      }
+    },
+    "./widget.css": "./dist/widget.css",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/widget.js",
+    "*.css"
+  ],
   "files": [
     "dist",
     "README.md"
@@ -38,7 +62,7 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "test": "node ../scripts/generate.mjs --check && tsc -p tsconfig.json && node --test test/*.test.ts",
-    "check:package": "npm run build && npx --yes publint@0.3 && npx --yes @arethetypeswrong/cli@0.18 --pack . --profile node16",
+    "check:package": "npm run build && npx --yes publint@0.3 && npx --yes @arethetypeswrong/cli@0.18 --pack . --profile node16 --exclude-entrypoints widget.css",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "prepublishOnly": "node ../scripts/generate.mjs --live && npm test && npm run build"
   },
@@ -57,7 +81,11 @@
     "council",
     "ward",
     "constituency",
-    "uk"
+    "uk",
+    "address finder",
+    "postcode finder",
+    "checkout",
+    "react"
   ],
   "homepage": "https://clearpostcode.co.uk/developers",
   "license": "MIT",
@@ -76,7 +104,20 @@
   },
   "devDependencies": {
     "@types/node": "^24.19.4",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
     "esbuild": "^0.28.2",
+    "happy-dom": "^21.0.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "typescript": "^7.0.2"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   }
 }

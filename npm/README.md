@@ -8,6 +8,7 @@ reverse geocode a point, measure distances, list a district, search places, and 
 - **Built for production:** automatic retries with backoff that honour `Retry-After` and the rate-limit headers,
   timeouts, cancellation, cursor pagination and bulk calls of any size.
 - **Runs anywhere:** Node 20+, Bun, Deno, Cloudflare Workers and browsers. ESM and CommonJS. No dependencies.
+- **A drop-in finder:** one script tag adds a postcode and address finder to any form, with a React component.
 - **Free to start:** 10,000 postcode lookups a month on a free key, no card, and many calls work with no key at all.
 
 Two products, one key: **Postcode data** (every UK postcode and its areas, from open data) and **Address lookup**
@@ -158,6 +159,75 @@ const cp = new ClearPostcode(); // or { key: "cp_pub_..." }: your publishable ke
 const { data } = await cp.postcodes.autocomplete("M1 1");
 console.log(data.length > 0); // true
 ```
+
+## Postcode finder
+
+A drop-in postcode (and address) finder for any form: about 8 KB gzipped, no dependencies, light theme, no animation.
+As the customer types, it formats the postcode, suggests postcodes, checks the postcode and fills the fields the
+postcode record holds: council, county, region, country, ward, constituency and coordinates. A mistyped, retired,
+brand-new or Northern Ireland postcode gets a clear message, and a retired one offers its live replacement. It is an
+ARIA combobox: arrow keys, Enter and Escape work, the focus stays visible and screen readers hear each suggestion and
+result.
+
+**One script tag.** Every input with `autocomplete="postal-code"` (or `data-clearpostcode="postcode"`) gets the finder,
+including fields a checkout renders after the page loads.
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.css">
+<script src="https://cdn.jsdelivr.net/npm/clearpostcode@2/dist/widget.js" data-key="cp_pub_..." defer></script>
+
+<input name="postcode" autocomplete="postal-code">
+<input name="council" data-clearpostcode="council">
+```
+
+Self-host it by serving `dist/widget.js` and `dist/widget.css` from your own domain. Script attributes: `data-key` (a
+publishable key, optional in postcode mode), `data-mode` (`auto`, `postcode` or `address`), `data-selector` (which
+inputs) and `data-auto="false"` (attach nothing; call `ClearPostcodeFinder.attach(input, options)` yourself).
+
+**Address lookup.** With a publishable key whose account has Address lookup switched on, the same box takes a postcode
+or the start of an address: the customer picks a street or building, then the address, and `address-line1`,
+`address-line2`, `address-level2` (town), `postal-code` and `organization` fill. Without it the finder stays in
+postcode mode on its own.
+
+**Fields it fills.** Each field is found in the input's part of the form (so billing and shipping each fill their
+own), by `data-clearpostcode="<name>"`, then by its autocomplete token:
+
+| Name | From | Autocomplete token |
+|---|---|---|
+| `postcode` | the postcode, formatted | `postal-code` |
+| `council`, `county`, `region`, `country`, `ward`, `constituency`, `latitude`, `longitude` | the postcode record | |
+| `line1`, `line2`, `line3`, `lines`, `town`, `organisation`, `udprn` | the address (Address lookup) | `address-line1`, `address-line2`, `address-line3`, `street-address`, `address-level2`, `organization` |
+
+It clears only what it filled itself, so a value the customer typed is never overwritten by an empty one.
+
+**From code**, with your own wording and callbacks:
+
+```js dom
+import { attach } from "clearpostcode/widget";
+import "clearpostcode/widget.css";
+
+const finder = attach("#postcode", {
+  key: "cp_pub_...",
+  fields: { council: "#council", county: null },
+  messages: { found: "{postcode} is in {council}" },
+  onPostcode: (record) => console.log(record.local_authority?.name),
+  onAddress: (address) => console.log(address.line_1, address.post_town),
+});
+```
+
+**React:**
+
+```jsx
+import { PostcodeFinder } from "clearpostcode/react";
+import "clearpostcode/widget.css";
+
+<PostcodeFinder name="postcode" publishableKey="cp_pub_..." onAddress={(a) => setAddress(a)} />;
+```
+
+**Theme** it with CSS custom properties on any ancestor: `--cpw-accent`, `--cpw-text`, `--cpw-muted`, `--cpw-bg`,
+`--cpw-border`, `--cpw-active-bg`, `--cpw-hover-bg`, `--cpw-ok`, `--cpw-warn`, `--cpw-error`, `--cpw-radius`,
+`--cpw-shadow`, `--cpw-font-size` and `--cpw-z`. A demo that runs without a key:
+[`examples/widget.html`](https://github.com/clearpostcode/postcode-api/blob/main/examples/widget.html).
 
 ## Address lookup
 
